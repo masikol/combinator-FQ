@@ -13,20 +13,6 @@ RCSTART: Terminus = 1
 END:     Terminus = 2
 RCEND:   Terminus = 3
 
-_KEY2LETTER_MAP: Dict[Terminus, str] = {
-    START: 'S',
-    RCSTART: 'rc_S',
-    END: 'E',
-    RCEND: 'rc_E'
-}
-
-_KEY2WORD_MAP: Dict[Terminus, str] = {
-    START: 'start',
-    RCSTART: 'rc-start',
-    END: 'end',
-    RCEND: 'rc-end'
-}
-
 
 class Overlap:
 
@@ -74,71 +60,6 @@ class OverlapCollection:
         # end try
     # end def add_overlap
 # end class OverlapCollection
-
-
-def get_overlaps_str_for_table(overlap_collection: OverlapCollection,
-                               contig_collection:  ContigCollection,
-                               key: ContigIndex) -> str:
-
-    if len(overlap_collection[key]) == 0:
-        return '-'
-    else:
-        overlaps: List[Overlap] = overlap_collection[key]
-        match_strings: List[str] = list()
-
-        ovl: Overlap
-        for ovl in overlaps:
-            if ovl.contig1 != ovl.contig2:
-                letter1: str = _KEY2LETTER_MAP[ovl.terminus1]
-                letter2: str = _KEY2LETTER_MAP[ovl.terminus2]
-                match_strings.append('[{}={}({}); ovl={}]'\
-                    .format(letter1, letter2, contig_collection[ovl.contig2].name, ovl.ovl_len))
-            else:
-                match_strings.append('[Circle; ovl={}]'.format(ovl.ovl_len))
-            # end if
-        # end for
-
-        return ' '.join(match_strings)
-    # end if
-# end def get_overlaps_str_for_table
-
-
-def get_overlaps_str_for_log(overlap_collection: OverlapCollection,
-                             contig_collection:  ContigCollection,
-                             key: ContigIndex) -> str:
-    if len(overlap_collection[key]) == 0:
-        return ''
-    else:
-        overlaps: List[Overlap] = overlap_collection[key]
-        match_strings: List[str] = list()
-
-        ovl: Overlap
-        for ovl in overlaps:
-
-            if ovl.contig1 != ovl.contig2:
-
-                word1: str = _KEY2WORD_MAP[ovl.terminus1]
-                word2: str = _KEY2WORD_MAP[ovl.terminus2]
-
-                match_strings.append('{}: {} matches {} of {} with overlap of {} b.p.'\
-                    .format(contig_collection[key].name, word1, word2,
-                        contig_collection[ovl.contig2].name, ovl.ovl_len))
-            else:
-
-                if ovl.terminus1 == END and ovl.terminus2 == START:
-                    match_strings.append('{}: contig is circular with overlap of {} b.p.'\
-                        .format(contig_collection[key].name, ovl.ovl_len))
-
-                elif ovl.terminus1 == START and ovl.terminus2 == RCEND:
-                    match_strings.append('{}: start is identical to it\'s own rc-end with overlap of {} b.p.'\
-                        .format(contig_collection[key].name, ovl.ovl_len))
-                # end if
-            # end if
-        # end for
-
-        return '\n'.join(match_strings)
-    # end if
-# end def
 
 
 def detect_adjacent_contigs(contig_collection: ContigCollection,

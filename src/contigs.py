@@ -137,11 +137,11 @@ def assign_multiplty(contig_collection: ContigCollection) -> None:
     if calc_multplty:
         for i in range(len(contig_collection)):
             try:
-                multiplicity: int = contig_collection[i].cov / contig_collection[0].cov
+                multiplicity: float = contig_collection[i].cov / contig_collection[0].cov
             except TypeError:
                 contig_collection[i].multplty = 1
             else:
-                contig_collection[i].multplty = max(multiplicity, 1)
+                contig_collection[i].multplty = round(max(multiplicity, 1), 1)
             # end try
         # end if
     else:

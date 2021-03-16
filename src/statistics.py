@@ -81,28 +81,29 @@ def calc_sum_contig_lengths(contig_collection: ContigCollection) -> int:
 
 def calc_lq_coef(contig_collection: ContigCollection,
                  overlap_collection: OverlapCollection) -> float:
-    total_dead_ends: int = 0
     total_termini: int = 0
+    total_dead_ends: int = 0
 
     i: int
     contig: Contig
 
     for i, contig in enumerate(contig_collection):
 
-        num_termini: int = int(2 * contig.multplty)
-        total_termini += num_termini
+        round_multplty: int = round(contig.multplty)
+        num_termini: int = int(2 * round_multplty)
 
         num_start_matches: int = len(tuple(
-            filter(_is_start_match, overlap_collection[i])
+            filter(is_start_match, overlap_collection[i])
         ))
         num_end_matches:   int = len(tuple(
-            filter(_is_end_match, overlap_collection[i])
+            filter(is_end_match, overlap_collection[i])
         ))
 
-        num_dead_ends: int = int(2 * contig.multplty)\
-                             - min(contig.multplty, num_start_matches)\
-                             - min(contig.multplty, num_end_matches)
+        num_dead_ends: int = int(2 * round_multplty)\
+                             - min(round_multplty, num_start_matches)\
+                             - min(round_multplty, num_end_matches)
 
+        total_termini += num_termini
         total_dead_ends += num_dead_ends
     # end for
 
@@ -112,13 +113,13 @@ def calc_lq_coef(contig_collection: ContigCollection,
 # end def calc_lq_coef
 
 
-def _is_start_match(ovl: Overlap) -> bool:
+def is_start_match(ovl: Overlap) -> bool:
     return (ovl.terminus1 == START and ovl.terminus2 == END)\
            or {ovl.terminus1, ovl.terminus2} == _START2START_MATCH
-# end def def _is_start_match
+# end def def is_start_match
 
 
-def _is_end_match(ovl: Overlap) -> bool:
+def is_end_match(ovl: Overlap) -> bool:
     return (ovl.terminus1 == END and ovl.terminus2 == START)\
            or {ovl.terminus1, ovl.terminus2} == _END2END_MATCH
-# end def def _is_end_match
+# end def def is_end_match
