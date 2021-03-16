@@ -50,5 +50,8 @@
 
 import src.parse_args
 
-src.parse_args.parse_args()
+contigs_fpaths, params = src.parse_args.parse_args()
+
+print(contigs_fpaths)
+print(params)
 
