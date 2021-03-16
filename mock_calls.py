@@ -8,7 +8,7 @@ import src.statistics
 mink = 15
 maxk = 25
 
-contig_collection = src.contigs.get_contig_collection('test-contigs.fasta', mink, maxk)
+contig_collection = src.contigs.get_contig_collection('test-contigs.fasta', maxk)
 # contig_collection = src.contigs.get_contig_collection('/home/deynonih/Dropbox/tmp/contigs1000.fasta.gz', mink, maxk)
 src.contigs.assign_multiplty(contig_collection)
 overlap_collection = src.overlaps.detect_adjacent_contigs(contig_collection, mink, maxk)
@@ -36,5 +36,5 @@ print(src.statistics.calc_sum_contig_lengths(contig_collection))
 print(src.statistics.get_min_coverage(contig_collection))
 print(src.statistics.get_max_coverage(contig_collection))
 print(src.statistics.calc_mean_coverage(contig_collection))
-print(src.statistics.calc_LQ_coef(contig_collection, overlap_collection))
+print(src.statistics.calc_lq_coef(contig_collection, overlap_collection))
 

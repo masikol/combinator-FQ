@@ -6,17 +6,17 @@ from src.find_overlap import find_overlap_s2s, find_overlap_e2s, find_overlap_e2
 START, RCSTART, END, RCEND = range(4)
 
 _KEY2LETTER_MAP = {
-    0: 'S',
-    1: 'rc_S',
-    2: 'E',
-    3: 'rc_E'
+    START: 'S',
+    RCSTART: 'rc_S',
+    END: 'E',
+    RCEND: 'rc_E'
 }
 
 _KEY2WORD_MAP = {
-    0: 'start',
-    1: 'rc-start',
-    2: 'end',
-    3: 'rc-end'
+    START: 'start',
+    RCSTART: 'rc-start',
+    END: 'end',
+    RCEND: 'rc-end'
 }
 
 
@@ -30,11 +30,11 @@ class Overlap:
         self.ovl_len = ovl_len
     # end def __init__
 
-    def __repr__(self):
-        return '<{}-{}; {}-{}; len={}>'\
-        .format(self.contig1, self.terminus1,
-        self.contig2, self.terminus2, self.ovl_len)
-    # end def __repr__
+    # def __repr__(self):
+    #     return '<{}-{}; {}-{}; len={}>'\
+    #     .format(self.contig1, self.terminus1,
+    #     self.contig2, self.terminus2, self.ovl_len)
+    # # end def __repr__
 # end class Overlap
 
 
@@ -49,9 +49,8 @@ class OverlapCollection:
             item_to_return = self._collection[position]
         except KeyError:
             item_to_return = tuple()
-        finally:
-            return item_to_return
         # end try
+        return item_to_return
     # end def __getitem__
 
     def add_overlap(self, key, overlap):
@@ -135,7 +134,7 @@ def detect_adjacent_contigs(contig_collection, mink, maxk):
         ovl_len = find_overlap_e2s(contig_collection[i].end,
                                    contig_collection[i].start,
                                    mink, maxk)
-        if ovl_len != 0 and contig_collection[i].length != ovl_len:
+        if not ovl_len in (0, contig_collection[i].length):
             overlap_collection.add_overlap(i, Overlap(i, END, i, START, ovl_len))
             overlap_collection.add_overlap(i, Overlap(i, START, i, END, ovl_len))
         # end if

@@ -4,9 +4,6 @@ import re
 import gzip
 
 
-# Readable indices
-FULL_NAME, NAME, LEN, COV, GC, START, RC_START, END, RC_END, START_MATCH, END_MATCH, MULT = range(12)
-
 # Dictionary maps complementary bases according to IUPAC:
 _COMPL_DICT = {
     'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G',
@@ -18,11 +15,11 @@ _COMPL_DICT = {
 
 class Contig:
 
-    def __init__(self, name, length, cov, gcContent, start, rcstart, end, rcend):
+    def __init__(self, name, length, cov, gc_content, start, rcstart, end, rcend):
         self.name = name
         self.length = length
         self.cov = cov
-        self.gcContent = gcContent
+        self.gc_content = gc_content
         self.start = start
         self.rcstart = rcstart
         self.end = end
@@ -35,14 +32,14 @@ class Contig:
 # {}\n\
 # {}\n\
 # {}\n\
-# {}>\n'.format(self.name, self.length, self.cov, self.gcContent, self.multplty,
+# {}>\n'.format(self.name, self.length, self.cov, self.gc_content, self.multplty,
 #     self.start, self.rcstart, self.end, self.rcend)
 #     # end def __repr__
 
 # end class Contig
 
 
-def get_contig_collection(infpath, mink, maxk):
+def get_contig_collection(infpath, maxk):
 
     contig_collection = list()
 
@@ -75,14 +72,14 @@ def get_contig_collection(infpath, mink, maxk):
         for up_base, low_base in zip(('G', 'C', 'S'),('g', 'c', 's')):
             gc_content += contig_seq.count(up_base) + contig_seq.count(low_base)
         # end for
-        gcContent = round((gc_content / contig_len * 100), 2)
+        gc_content = round((gc_content / contig_len * 100), 2)
 
         contig_collection.append(
             Contig(
                 name,
                 contig_len,
                 cov,
-                gcContent,
+                gc_content,
                 contig_seq[:maxk],
                 _rc(contig_seq[:maxk]),
                 contig_seq[-maxk:],
@@ -101,17 +98,21 @@ def assign_multiplty(contig_collection):
     # In this case we cannot calculate multiplicity of contigs.
     # 'calc_multplty' (calculate multiplicity) will indicate whether we can calculate multiplicity.
     calc_multplty = False
+    spades_first_name = 'NODE_1'
 
-    if contig_collection[0].name == 'NODE_1':
-        calc_multplty = True # We have SPAdes assembly, and coverage of NODE_1 is non-zero
+    if contig_collection[0].name == spades_first_name:
+        # We have SPAdes assembly, and coverage of NODE_1 is non-zero
+        calc_multplty = True
         if contig_collection[0].cov < 1e-6:
             print('\n`{}` has zero coverage (less than 1e-6 actually).'\
                 .format(contig_collection[0].name))
             print('Multiplicity of contigs cannot be calculated.\n')
-            calc_multplty = False # We have SPAdes assembly, and coverage of NODE_1 is zero
+            # We have SPAdes assembly, and coverage of NODE_1 is zero
+            calc_multplty = False
         # end if
     else:
-        calc_multplty = False # We have non-SPAdes assembly, no coverage provided
+        # We have non-SPAdes assembly, no coverage provided
+        calc_multplty = False
     # end if
 
     # Calculate multiplicity of contig:
