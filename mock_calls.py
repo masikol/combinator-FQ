@@ -45,3 +45,4 @@ print(src.statistics.calc_lq_coef(contig_collection, overlap_collection))
 
 src.output.write_summary(contig_collection, overlap_collection, 'infile', os.getcwd(), '')
 src.output.write_adjacency_table(contig_collection, overlap_collection, os.getcwd(), '')
+src.output.write_full_log(contig_collection, overlap_collection, os.getcwd(), '')

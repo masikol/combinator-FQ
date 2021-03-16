@@ -152,6 +152,38 @@ def write_adjacency_table(contig_collection: ContigCollection,
 # end def write_adjacency_table
 
 
+def write_full_log(contig_collection: ContigCollection,
+                   overlap_collection: OverlapCollection,
+                   outdpath: str, out_prefix: str) -> None:
+
+    log_fpath: str = os.path.join(
+        outdpath,
+        '{}{}combinator_full_matching_log.txt'\
+            .format(out_prefix, '' if out_prefix == '' else '_')
+    )
+
+    print('Writing full matching log to `{}`'.format(log_fpath))
+
+    outfile: TextIO
+    with open(log_fpath, 'w') as outfile:
+
+        buff_out_str: str
+
+        # Write information about discovered adjacency
+        i: ContigIndex
+        contig: Contig
+        for i, contig in enumerate(contig_collection):
+            # Write what matches start of current contig
+            buff_out_str = _get_overlaps_str_for_log(overlap_collection,
+                                                     contig_collection, i)
+            if buff_out_str != '':
+                outfile.write('{}\n'.format(buff_out_str))
+            # end if
+        # end for
+    # end with
+# end def write_full_log
+
+
 def _double_write(outstr: str, outfile: TextIO) -> None:
     print_func: Callable[[str], int]
     for print_func in (sys.stdout.write, outfile.write):
@@ -175,19 +207,29 @@ def _get_end_matches(overlaps: List[Overlap]) -> Collection[Overlap]:
 # end def _get_end_matches
 
 
-def _get_overlaps_str_for_table(overlap_collection: OverlapCollection,
-                                contig_collection:  ContigCollection,
-                                key: ContigIndex, term: str) -> str:
-
-    get_matches: Callable[[List[Overlap]], Collection[Overlap]]
+def _select_get_matches(term: str) -> Callable[[List[Overlap]], Collection[Overlap]]:
     if term == 's':
         get_matches = _get_start_matches
     elif term == 'e':
         get_matches = _get_end_matches
     else:
+        raise ValueError
+    # end if
+    return get_matches
+# end def _select_get_matches
+
+
+def _get_overlaps_str_for_table(overlap_collection: OverlapCollection,
+                                contig_collection:  ContigCollection,
+                                key: ContigIndex, term: str) -> str:
+
+    get_matches: Callable[[List[Overlap]], Collection[Overlap]]
+    try:
+        get_matches = _select_get_matches(term)
+    except ValueError:
         raise ValueError('Invalid value passed to function \
 `_get_overlaps_str_for_table` with argument `term`: `{}`'.format(term))
-    # end if
+    # end try
 
     overlaps: Collection[Overlap] = get_matches(overlap_collection[key])
 
@@ -216,10 +258,12 @@ def _get_overlaps_str_for_table(overlap_collection: OverlapCollection,
 def _get_overlaps_str_for_log(overlap_collection: OverlapCollection,
                               contig_collection:  ContigCollection,
                               key: ContigIndex) -> str:
-    if len(overlap_collection[key]) == 0:
+
+    overlaps: List[Overlap] = overlap_collection[key]
+
+    if len(overlaps) == 0:
         return ''
     else:
-        overlaps: List[Overlap] = overlap_collection[key]
         match_strings: List[str] = list()
 
         ovl: Overlap

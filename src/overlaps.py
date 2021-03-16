@@ -27,11 +27,11 @@ class Overlap:
         self.ovl_len: int = ovl_len
     # end def __init__
 
-    # def __repr__(self):
-    #     return '<{}-{}; {}-{}; len={}>'\
-    #     .format(self.contig1, self.terminus1,
-    #     self.contig2, self.terminus2, self.ovl_len)
-    # # end def __repr__
+    def __repr__(self):
+        return '<{}-{}; {}-{}; len={}>'\
+        .format(self.contig1, self.terminus1,
+        self.contig2, self.terminus2, self.ovl_len)
+    # end def __repr__
 # end class Overlap
 
 
@@ -59,6 +59,10 @@ class OverlapCollection:
             self._collection[key] = [overlap]
         # end try
     # end def add_overlap
+
+    def __repr__(self) -> str:
+        return self._collection
+    # end def __repr__
 # end class OverlapCollection
 
 
