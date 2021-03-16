@@ -8,7 +8,7 @@ def find_overlap_s2s(seq1, seq2, mink, maxk):
     # :param seq2: another sequence;  :type seq2: str;
     # :param mink: minimun overlap;   :type mink: int;
     # :param maxk: maximum overlap;   :type maxk: int;
-
+    #
     # Returns 0 if overlap is less than 'mink' and
     #   length of overlap (which is <= maxk) otherwise.
 
