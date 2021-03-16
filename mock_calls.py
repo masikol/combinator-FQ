@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
+
 import src.contigs
 import src.overlaps
 import src.statistics
+import src.output
 
 mink = 15
 maxk = 25
@@ -33,8 +36,11 @@ print(src.overlaps.get_overlaps_str_for_log(overlap_collection, contig_collectio
 print()
 
 print(src.statistics.calc_sum_contig_lengths(contig_collection))
-print(src.statistics.get_min_coverage(contig_collection))
-print(src.statistics.get_max_coverage(contig_collection))
-print(src.statistics.calc_mean_coverage(contig_collection))
+cov_calc = src.statistics.CoverageCalculator(contig_collection)
+print(cov_calc.get_min_coverage())
+print(cov_calc.get_max_coverage())
+print(cov_calc.calc_mean_coverage())
 print(src.statistics.calc_lq_coef(contig_collection, overlap_collection))
 
+
+src.output.write_summary(contig_collection, overlap_collection, 'infile', os.getcwd(), '')
