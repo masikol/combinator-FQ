@@ -31,8 +31,8 @@ def write_summary(contig_collection: ContigCollection,
 
     summary_fpath: str = os.path.join(
         outdpath,
-        '{}{}combinator_summary_FQ.txt'\
-            .format(out_prefix, '' if out_prefix == '' else '_')
+        '{}_combinator_summary_FQ.txt'\
+            .format(out_prefix)
     )
 
     print('Writing summary to `{}`'.format(summary_fpath))
@@ -94,8 +94,8 @@ def write_adjacency_table(contig_collection: ContigCollection,
 
     adj_table_fpath: str = os.path.join(
         outdpath,
-        '{}{}combinator_adjacent_contigs.tsv'\
-            .format(out_prefix, '' if out_prefix == '' else '_')
+        '{}_combinator_adjacent_contigs.tsv'\
+            .format(out_prefix)
     )
 
     print('Writing adjacency table to `{}`'.format(adj_table_fpath))
@@ -158,8 +158,8 @@ def write_full_log(contig_collection: ContigCollection,
 
     log_fpath: str = os.path.join(
         outdpath,
-        '{}{}combinator_full_matching_log.txt'\
-            .format(out_prefix, '' if out_prefix == '' else '_')
+        '{}_combinator_full_matching_log.txt'\
+            .format(out_prefix)
     )
 
     print('Writing full matching log to `{}`'.format(log_fpath))

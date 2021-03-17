@@ -27,8 +27,8 @@ def parse_args(version: str, last_update_date: str) -> Tuple[Sequence[str], Mapp
     opts: List[List[str]]
     args: List[str]
     try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], 'hvp:k:i:a:o:',
-            ['help', 'version', 'prefix=', 'k-mer=', 'mink=', 'maxk=', 'outdir='])
+        opts, args = getopt.gnu_getopt(sys.argv[1:], 'hvk:i:a:o:',
+            ['help', 'version', 'k-mer=', 'mink=', 'maxk=', 'outdir='])
     except getopt.GetoptError as err:
         print(str(err))
         platf_depend_exit(2)
@@ -97,6 +97,14 @@ def _get_input_fpaths(args: Sequence[str]) -> Sequence[str]:
         contigs_fpaths = tuple(args)
     # end if
 
+    # Change paths to absolute paths
+    contigs_fpaths = tuple(
+        map(
+            os.path.anspath,
+            contigs_fpaths
+        )
+    )
+
     return contigs_fpaths
 # end def _get_input_fpaths
 
@@ -105,8 +113,6 @@ def _parse_options(opts: Sequence[Sequence[str  ]]) -> Mapping[str, Any]:
 
     # Set default values for parameters
     params: Dict[str, Any] = {
-        # prefix for output files
-        'p': '',
         'o': os.path.join(os.getcwd(), 'combinator-result'), # outdir
         'i': 21,  # mink
         'a': 127, # maxk
@@ -159,9 +165,6 @@ def _parse_options(opts: Sequence[Sequence[str  ]]) -> Mapping[str, Any]:
                 print('Your value: `{}`'.format(arg))
                 platf_depend_exit(1)
             # end try
-
-        elif opt in ('-p', '--prefix'):
-            params['p'] = arg
         # end if
     # end for
 

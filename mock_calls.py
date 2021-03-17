@@ -47,13 +47,19 @@
 # src.output.write_full_log(contig_collection, overlap_collection, os.getcwd(), '')
 # src.output.write_summary(contig_collection, overlap_collection, 'infile', os.getcwd(), '')
 
-__version__ = '1'
-__last_update_date__ = '04.09.1385'
+# ------------------------------------------------
+# __version__ = '1'
+# __last_update_date__ = '04.09.1385'
 
-import src.parse_args
+# import src.parse_args
 
-contigs_fpaths, params = src.parse_args.parse_args(__version__, __last_update_date__)
+# contigs_fpaths, params = src.parse_args.parse_args(__version__, __last_update_date__)
 
-print(contigs_fpaths)
-print(params)
+# print(contigs_fpaths)
+# print(params)
 
+# ------------------------------------------------
+
+import src.filesystem
+
+print(src.filesystem.conf_prefix('/home/cager/repos/combinator-FQ/test-contigs.fasta', '/home/cager/repos/combinator-FQ'))
