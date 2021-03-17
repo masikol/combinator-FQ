@@ -100,7 +100,7 @@ def _get_input_fpaths(args: Sequence[str]) -> Sequence[str]:
     # Change paths to absolute paths
     contigs_fpaths = tuple(
         map(
-            os.path.anspath,
+            os.path.abspath,
             contigs_fpaths
         )
     )

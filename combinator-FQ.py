@@ -28,5 +28,5 @@ if sys.version_info.major + sys.version_info.minor*0.1 < __min_python_version__:
 from src.main import main
 
 if __name__ == '__main__':
-    main()
+    main(__version__, __last_update_date__)
 # end if
