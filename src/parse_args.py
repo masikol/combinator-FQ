@@ -12,15 +12,15 @@ from src.print_help import print_help
 from src.platform import platf_depend_exit
 
 
-def parse_args() -> Tuple[Sequence[str], Mapping[str, Any]]:
+def parse_args(version: str, last_update_date: str) -> Tuple[Sequence[str], Mapping[str, Any]]:
 
     if '-h' in sys.argv[1:] or '--help' in sys.argv[1:]:
-        print_help()
+        print_help(version, last_update_date)
         platf_depend_exit()
     # end if
 
     if '-v' in sys.argv[1:] or '--version' in sys.argv[1:]:
-        print(__version__)
+        print(version)
         platf_depend_exit()
     # end if
 
@@ -28,14 +28,14 @@ def parse_args() -> Tuple[Sequence[str], Mapping[str, Any]]:
     args: List[str]
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], 'hvp:k:i:a:o:',
-            ['help', 'version', 'prefix=', 'k-mer-len=', 'mink=', 'maxk=', 'outdir='])
+            ['help', 'version', 'prefix=', 'k-mer=', 'mink=', 'maxk=', 'outdir='])
     except getopt.GetoptError as err:
-        print( str(err) )
+        print(str(err))
         platf_depend_exit(2)
     # end try
 
-    contigs_fpaths = _get_input_fpaths(args)
-    params = _parse_options(opts)
+    contigs_fpaths: Sequence[str] = _get_input_fpaths(args)
+    params: Dict[str, Any] = _parse_options(opts)
 
     # Verify mink and maxk:
     if params['i'] > params['a']:
@@ -68,7 +68,7 @@ def _get_input_fpaths(args: Sequence[str]) -> Sequence[str]:
         contigs_fpaths = tuple(
             filter(
                 src.filesystem.is_fasta,
-                glob.iglob(os.path.join(os.getcwd(), '*contigs.f*'))
+                glob.iglob(os.path.join(os.getcwd(), '*'))
             )
         )
 
