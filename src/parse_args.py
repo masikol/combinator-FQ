@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import re
 import os
 import sys
 import glob
@@ -13,17 +12,24 @@ from src.platform import platf_depend_exit
 
 
 def parse_args(version: str, last_update_date: str) -> Tuple[Sequence[str], Mapping[str, Any]]:
+    # Function parses command line arguments.
+    # Returns two values:
+    #  1. Collection of paths to input files.
+    #  2. Dictionary of parameters (see function _parse_options).
 
+    # Print help message and exit if required
     if '-h' in sys.argv[1:] or '--help' in sys.argv[1:]:
         print_help(version, last_update_date)
         platf_depend_exit()
     # end if
 
+    # Print version and exit if required
     if '-v' in sys.argv[1:] or '--version' in sys.argv[1:]:
         print(version)
         platf_depend_exit()
     # end if
 
+    # Parse arguments woth getopt
     opts: List[List[str]]
     args: List[str]
     try:
@@ -34,14 +40,16 @@ def parse_args(version: str, last_update_date: str) -> Tuple[Sequence[str], Mapp
         platf_depend_exit(2)
     # end try
 
+    # Extract paths to input files from parsed arguments
     contigs_fpaths: Sequence[str] = _get_input_fpaths(args)
+    # Extract optional parameters from parsed arguments
     params: Dict[str, Any] = _parse_options(opts)
 
     # Verify mink and maxk:
     if params['i'] > params['a']:
-        if not '-i' in sys.argv[1:] or not '--mink' in sys.argv[1:]:
+        if '-i' not in sys.argv[1:] or '--mink' not in sys.argv[1:]:
             params['i'] = params['a']
-        elif not '-a' in sys.argv[1:] or not '--maxk' in sys.argv[1:]:
+        elif '-a' not in sys.argv[1:] or '--maxk' not in sys.argv[1:]:
             params['a'] = params['i']
         else:
             print('Error: minimum length of a k-mer is greater than maximum length of a k-mer.')
@@ -57,14 +65,16 @@ def parse_args(version: str, last_update_date: str) -> Tuple[Sequence[str], Mapp
 
 
 def _get_input_fpaths(args: Sequence[str]) -> Sequence[str]:
+    # Function extracts paths to input files from `args` colection returned by `getopt.gnu_getopt`.
+    # Returns collection of paths to input fasta files.
 
     contigs_fpaths: Sequence[str]
 
-    # Determine fasta file to process:
     if len(args) == 0:
-        # If no input file is specified,
+        # If no input files are specified,
         #   search for input files in the working directory:
 
+        # Get all fasta files in the workgin directory
         contigs_fpaths = tuple(
             filter(
                 src.filesystem.is_fasta,
@@ -73,31 +83,49 @@ def _get_input_fpaths(args: Sequence[str]) -> Sequence[str]:
         )
 
         if len(contigs_fpaths) != 0:
-            pass
+            # Files are found -- ask for permission and proceed
+            print('Following fasta files are found and will be processed:')
+            i: int
+            path: str
+            for i, path in contigs_fpaths:
+                print(' {}. `{}`'.format(i+1, path))
+            # end for
+            error: bool = True
+            while error:
+                reply: str = input('Is it ok? Proceed? [Y, n]:')
+                if reply.lower() == 'y':
+                    error = False
+                elif reply.lower() == 'n':
+                    print('Ok. Type `{} -h` for help.'.format(sys.argv[0]))
+                    sys.exit(0)
+                else:
+                    print('Invalid reply: `{}`'.format(reply))
+                # end if
+            # end while
         else:
-            # If there are no fasta files in working directory, just print help
+            # If there are no fasta files in the working directory -- exit
             print('Nothing to process.')
             print('Please, type `{} -h` for help.'.format(sys.argv[0]))
             platf_depend_exit(1)
         # end if
-
     else:
         # Check existance of input files
-        fpath: str
+        arg: str
         for arg in args:
             if not os.path.exists(arg):
                 print('Error: file `{}` does not exist.'.format(arg))
                 platf_depend_exit(1)
             # end if
             if not src.filesystem.is_fasta(arg):
-                print('Error: file `{}` is not a fasta file, considering it\'s extention.'.format(arg))
+                print('Error: file `{}` is not a fasta file, considering it\'s extention.'\
+                    .format(arg))
                 platf_depend_exit(1)
             # end if
         # end for
         contigs_fpaths = tuple(args)
     # end if
 
-    # Change paths to absolute paths
+    # make all paths absolute
     contigs_fpaths = tuple(
         map(
             os.path.abspath,
@@ -109,24 +137,32 @@ def _get_input_fpaths(args: Sequence[str]) -> Sequence[str]:
 # end def _get_input_fpaths
 
 
-def _parse_options(opts: Sequence[Sequence[str  ]]) -> Mapping[str, Any]:
+def _parse_options(opts: Sequence[Sequence[str]]) -> Mapping[str, Any]:
+    # Funtion extracts options from `args` colection returned by `getopt.gnu_getopt`.
+    # Returns following dictionary:
+    #    {
+    #       'o': <outdir_path>,
+    #       'i': <mink>,
+    #       'a': <maxk>,
+    #    }
 
     # Set default values for parameters
     params: Dict[str, Any] = {
         'o': os.path.join(os.getcwd(), 'combinator-result'), # outdir
-        'i': 21,  # mink
-        'a': 127, # maxk
+        'i': 21,                                             # mink
+        'a': 127,                                            # maxk
     }
 
-    # Parse command-line options
-
+    # Parse command line options
+    opt: str
+    arg: str
     for opt, arg in opts:
 
+        # k-mer size
         if opt in ('-k', '--k-mer-len'):
-
             try:
-                arg = int(arg)
-                if arg <= 0:
+                k: int = int(arg)
+                if k <= 0:
                     raise ValueError
                 # end if
             except ValueError:
@@ -134,14 +170,15 @@ def _parse_options(opts: Sequence[Sequence[str  ]]) -> Mapping[str, Any]:
                 print('Your value: `{}`'.format(arg))
                 platf_depend_exit(1)
             else:
-                params['i'], params['a'] = arg, arg
+                params['i'], params['a'] = k, k
             # end try
 
+        # Outdir
         elif opt in ('-o', '--outdir'):
             params['o'] = arg
 
+        # Minimim k-mer size
         elif opt in ('-i', '--mink'):
-
             try:
                 params['i'] = int(arg)
                 if params['i'] <= 0:
@@ -153,8 +190,8 @@ def _parse_options(opts: Sequence[Sequence[str  ]]) -> Mapping[str, Any]:
                 platf_depend_exit(1)
             # end try
 
+        # Maximim k-mer size
         elif opt in ('-a', '--maxk'):
-
             try:
                 params['a'] = int(arg)
                 if params['a'] <= 0:

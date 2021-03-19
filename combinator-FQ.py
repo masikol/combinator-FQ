@@ -3,10 +3,10 @@
 
 import sys
 
-__version__ = '1.4.a'
+__version__: str  = '1.4.a'
 # Year, month, day
-__last_update_date__ = '2021-03-XX'
-__min_python_version__ = 3.6
+__last_update_date__: str = '2021-03-XX'
+__min_python_version__: float = 3.6
 
 # Check python interpreter version
 if sys.version_info.major + sys.version_info.minor*0.1 < __min_python_version__:

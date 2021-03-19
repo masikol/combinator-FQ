@@ -10,6 +10,8 @@ from src.overlaps import Overlap, OverlapCollection
 from src.overlaps import Terminus, START, RCSTART, END, RCEND
 
 
+# Dictionary maps `Terminus` to it's "letter" representation
+#   for adjacency table.
 _KEY2LETTER_MAP: Dict[Terminus, str] = {
     START: 'S',
     RCSTART: 'rc_S',
@@ -17,6 +19,8 @@ _KEY2LETTER_MAP: Dict[Terminus, str] = {
     RCEND: 'rc_E'
 }
 
+# Dictionary maps `Terminus` to it's "word" representation
+#   for full log.
 _KEY2WORD_MAP: Dict[Terminus, str] = {
     START: 'start',
     RCSTART: 'rc-start',
@@ -28,6 +32,7 @@ _KEY2WORD_MAP: Dict[Terminus, str] = {
 def write_summary(contig_collection: ContigCollection,
                   overlap_collection: OverlapCollection,
                   infpath: str, outdpath: str, out_prefix: str) -> None:
+    # Function writes summary to summary file.
 
     summary_fpath: str = os.path.join(
         outdpath,
