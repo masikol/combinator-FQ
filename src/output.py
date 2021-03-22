@@ -2,9 +2,10 @@
 
 import os
 import sys
-from typing import TextIO, Callable, Dict, Collection, List
+from typing import TextIO, Callable, Dict, Collection, List, MutableSequence
 
-import src.statistics as sts
+from src.platform import platf_depend_exit
+import src.combinator_statistics as sts
 from src.contigs import Contig, ContigCollection, ContigIndex
 from src.overlaps import Overlap, OverlapCollection
 from src.overlaps import Terminus, START, RCSTART, END, RCEND
@@ -33,7 +34,16 @@ def write_summary(contig_collection: ContigCollection,
                   overlap_collection: OverlapCollection,
                   infpath: str, outdpath: str, out_prefix: str) -> None:
     # Function writes summary to summary file.
+    #
+    # :param contig_collection: instance of ContigCollection returned by
+    #   `src.contigs.get_contig_collection` function;
+    # :param overlap_collection: instance of OverlapCollection returned by
+    #   `src.overlaps.detect_adjacent_contigs` function;
+    # :param infpath: path to input file (it will be mentioned in summary);
+    # :param outdpath: path to output directory;
+    # :param out_prefix: prefix for current output files;
 
+    # Make path to summary file
     summary_fpath: str = os.path.join(
         outdpath,
         '{}_combinator_summary_FQ.txt'\
@@ -42,53 +52,61 @@ def write_summary(contig_collection: ContigCollection,
 
     print('Writing summary to `{}`'.format(summary_fpath))
 
-    out_str: str
+    # Proceed
+    wrk_str: str
     outfile: TextIO
     with open(summary_fpath, 'w') as outfile:
 
+        # Path to input file
         outfile.write('Input file: `{}`\n\n'.format(infpath))
 
         # Summary with some statistics:
         _double_write(' === Summary ===', outfile)
 
         # Number of contigs processed:
-        out_str = '{} contigs were processed.'.format(len(contig_collection))
-        _double_write(out_str, outfile)
+        wrk_str = '{} contigs were processed.'.format(len(contig_collection))
+        _double_write(wrk_str, outfile)
 
         # Sum of contigs' lengths
-        out_str = 'Sum of contig lengths: {} b.p.'\
+        wrk_str = 'Sum of contig lengths: {} bp'\
             .format(sts.calc_sum_contig_lengths(contig_collection))
-        _double_write(out_str, outfile)
+        _double_write(wrk_str, outfile)
 
         # Expected length of the genome
-        out_str = 'Expected length of the genome: {} b.p.'.format(-1) # STUB !!
-        _double_write(out_str, outfile)
+        wrk_str = 'Expected length of the genome: {} bp'.format(-1) # STUB !!
+        _double_write(wrk_str, outfile)
 
         # Calculate coverage statistics
         cov_calc = sts.CoverageCalculator(contig_collection)
 
         # Min coverage
         min_coverage: float = cov_calc.get_min_coverage()
-        out_str = 'Min coverage: {}'\
+        wrk_str = 'Min coverage: {}'\
             .format(min_coverage if not min_coverage is None else 'NA')
-        _double_write(out_str, outfile)
+        _double_write(wrk_str, outfile)
 
         # Max coverage
         max_coverage: float = cov_calc.get_max_coverage()
-        out_str = 'Max coverage: {}'\
+        wrk_str = 'Max coverage: {}'\
             .format(max_coverage if not max_coverage is None else 'NA')
-        _double_write(out_str, outfile)
+        _double_write(wrk_str, outfile)
 
         # Mean coverage
         mean_coverage: float = cov_calc.calc_mean_coverage()
-        out_str = 'Mean coverage: {}'\
+        wrk_str = 'Mean coverage: {}'\
             .format(mean_coverage if not mean_coverage is None else 'NA')
-        _double_write(out_str, outfile)
+        _double_write(wrk_str, outfile)
+
+        # Median coverage
+        median_coverage: float = cov_calc.calc_median_coverage()
+        wrk_str = 'Median coverage: {}'\
+            .format(median_coverage if not median_coverage is None else 'NA')
+        _double_write(wrk_str, outfile)
 
         # LQ coefficient
-        out_str = 'LQ-coefficient: {}'\
+        wrk_str = 'LQ-coefficient: {}'\
             .format(sts.calc_lq_coef(contig_collection, overlap_collection))
-        _double_write(out_str, outfile)
+        _double_write(wrk_str, outfile)
     # end with
 # end def write_summary
 
@@ -96,7 +114,16 @@ def write_summary(contig_collection: ContigCollection,
 def write_adjacency_table(contig_collection: ContigCollection,
                           overlap_collection: OverlapCollection,
                           outdpath: str, out_prefix: str) -> None:
+    # Function writes adjacency table to output TSV file.
+    #
+    # :param contig_collection: instance of ContigCollection returned by
+    #   `src.contigs.get_contig_collection` function;
+    # :param overlap_collection: instance of OverlapCollection returned by
+    #   `src.overlaps.detect_adjacent_contigs` function;
+    # :param outdpath: path to output directory;
+    # :param out_prefix: prefix for current output files;
 
+    # Make path to output TSV file
     adj_table_fpath: str = os.path.join(
         outdpath,
         '{}_combinator_adjacent_contigs.tsv'\
@@ -105,51 +132,64 @@ def write_adjacency_table(contig_collection: ContigCollection,
 
     print('Writing adjacency table to `{}`'.format(adj_table_fpath))
 
+    # Proceed
     outfile: TextIO
     with open(adj_table_fpath, 'w') as outfile:
 
         # Write head of the table:
-        outfile.write("#\tContig name\tLength\tCoverage\tGC(%)\tMultiplicity\tAnnotation\tStart\tEnd\n")
+        outfile.write('\t'.join([
+            '#',
+            'Contig name',
+            'Length',
+            'Coverage',
+            'GC(%)',
+            'Multiplicity',
+            'Annotation',
+            'Start',
+            'End',
+        ]))
+        outfile.write('\n')
 
-        buff_out_str: str
+        wrk_str: str
 
+        # Iterate over contigs and write their properties
         i: ContigIndex
         contig: Contig
         for i, contig in enumerate(contig_collection):
 
-            # Write ordinal number and name
+            # Ordinal number and name
             outfile.write('{}\t'.format(i + 1))
             outfile.write('{}\t'.format(contig.name))
 
-            # Write length
+            # Length
             outfile.write('{}\t'.format(contig.length))
 
-            # Write coverage
-            buff_out_str = '-' if contig.cov is None else str(contig.cov)
-            outfile.write('{}\t'.format(buff_out_str))
+            # Coverage
+            wrk_str = '-' if contig.cov is None else str(contig.cov)
+            outfile.write('{}\t'.format(wrk_str))
 
-            # Write GC content of the contig
+            # GC content of the contig
             outfile.write(str(contig.gc_content) + '\t')
 
-            # Write multiplicity
-            buff_out_str = '-' if contig.cov is None else str(contig.multplty)
-            outfile.write('{}\t'.format(buff_out_str))
+            # Multiplicity
+            wrk_str = '-' if contig.cov is None else str(contig.multplty)
+            outfile.write('{}\t'.format(wrk_str))
 
-            # Write empty column for annotation
+            # Empty column for annotation
             outfile.write('\t')
 
-            # Write information about discovered adjacency
-            # Write "Start" column
-            buff_out_str = _get_overlaps_str_for_table(overlap_collection,
-                                                       contig_collection,
-                                                       i, 's')
-            outfile.write('{}\t'.format(buff_out_str))
+            # Information about discovered adjacency
+            # "Start" column
+            wrk_str = _get_overlaps_str_for_table(overlap_collection,
+                                                  contig_collection,
+                                                  i, 's')
+            outfile.write('{}\t'.format(wrk_str))
 
-            # Write "End" column
-            buff_out_str = _get_overlaps_str_for_table(overlap_collection,
-                                                       contig_collection,
-                                                       i, 'e')
-            outfile.write('{}'.format(buff_out_str))
+            # "End" column
+            wrk_str = _get_overlaps_str_for_table(overlap_collection,
+                                                  contig_collection,
+                                                  i, 'e')
+            outfile.write('{}'.format(wrk_str))
 
             outfile.write('\n')
         # end for
@@ -160,7 +200,17 @@ def write_adjacency_table(contig_collection: ContigCollection,
 def write_full_log(contig_collection: ContigCollection,
                    overlap_collection: OverlapCollection,
                    outdpath: str, out_prefix: str) -> None:
+    # Function writes full matching log (not only adjacency-associated matches)
+    #   to "full-log" file.
+    #
+    # :param contig_collection: instance of ContigCollection returned by
+    #   `src.contigs.get_contig_collection` function;
+    # :param overlap_collection: instance of OverlapCollection returned by
+    #   `src.overlaps.detect_adjacent_contigs` function;
+    # :param outdpath: path to output directory;
+    # :param out_prefix: prefix for current output files;
 
+    # Make path to full log file
     log_fpath: str = os.path.join(
         outdpath,
         '{}_combinator_full_matching_log.txt'\
@@ -169,20 +219,20 @@ def write_full_log(contig_collection: ContigCollection,
 
     print('Writing full matching log to `{}`'.format(log_fpath))
 
+    # Proceed
     outfile: TextIO
     with open(log_fpath, 'w') as outfile:
 
-        buff_out_str: str
+        wrk_str: str
 
         # Write information about discovered adjacency
         i: ContigIndex
-        contig: Contig
-        for i, contig in enumerate(contig_collection):
+        for i, _ in enumerate(contig_collection):
             # Write what matches start of current contig
-            buff_out_str = _get_overlaps_str_for_log(overlap_collection,
-                                                     contig_collection, i)
-            if buff_out_str != '':
-                outfile.write('{}\n'.format(buff_out_str))
+            wrk_str = _get_overlaps_str_for_log(overlap_collection,
+                                                contig_collection, i)
+            if not wrk_str is None:
+                outfile.write('{}\n'.format(wrk_str))
             # end if
         # end for
     # end with
@@ -190,6 +240,12 @@ def write_full_log(contig_collection: ContigCollection,
 
 
 def _double_write(outstr: str, outfile: TextIO) -> None:
+    # Function for writing and printing.
+    # "Double" means that it writes identical data both to
+    #   `outfile` and to stdout.
+    #
+    # :param outstr: string to be printed/written;
+    # :param outfile: file-like instance of output file to write in;
     print_func: Callable[[str], int]
     for print_func in (sys.stdout.write, outfile.write):
         print_func('{}\n'.format(outstr))
@@ -198,28 +254,40 @@ def _double_write(outstr: str, outfile: TextIO) -> None:
 # end def double_write
 
 
-def _get_start_matches(overlaps: List[Overlap]) -> Collection[Overlap]:
+def _get_start_matches(overlaps: MutableSequence[Overlap]) -> Collection[Overlap]:
+    # Function selects "start-associated" overlaps from a collection of overlaps.
     return tuple(
         filter(sts.is_start_match, overlaps)
     )
 # end def _get_start_matches
 
 
-def _get_end_matches(overlaps: List[Overlap]) -> Collection[Overlap]:
+def _get_end_matches(overlaps: MutableSequence[Overlap]) -> Collection[Overlap]:
+    # Function selects "end-associated" overlaps from a collection of overlaps.
     return tuple(
         filter(sts.is_end_match, overlaps)
     )
 # end def _get_end_matches
 
 
-def _select_get_matches(term: str) -> Callable[[List[Overlap]], Collection[Overlap]]:
+def _select_get_matches(term: str) -> Callable[[MutableSequence[Overlap]], Collection[Overlap]]:
+    # Function returns function depending on `term` (terminus) parameter.
+    # If `term` is 's', it returns `_get_start_matches` function.
+    # If `term` is 'e', it returns `_get_end_matches` function.
+    #
+    # :param term: string 's' (start) or 'e' (end);
+
     if term == 's':
         get_matches = _get_start_matches
     elif term == 'e':
         get_matches = _get_end_matches
     else:
-        raise ValueError
+        print('Fatal error: invalid value passed to function \
+`_get_overlaps_str_for_table` with argument `term`: `{}`'.format(term))
+        print('Please, contact the developer.')
+        platf_depend_exit(1)
     # end if
+
     return get_matches
 # end def _select_get_matches
 
@@ -227,34 +295,50 @@ def _select_get_matches(term: str) -> Callable[[List[Overlap]], Collection[Overl
 def _get_overlaps_str_for_table(overlap_collection: OverlapCollection,
                                 contig_collection:  ContigCollection,
                                 key: ContigIndex, term: str) -> str:
+    # Function extracts overlaps of `key` contigs associated with `term` terminus,
+    #   converts this collection of `src.overlaps.Overlap` to string representation
+    #   for adjacency table.
+    # After this, the fucntion returns this string.
+    #
+    # :param contig_collection: instance of ContigCollection returned by
+    #   `src.contigs.get_contig_collection` function;
+    # :param overlap_collection: instance of OverlapCollection returned by
+    #   `src.overlaps.detect_adjacent_contigs` function;
+    # :param key: key (index) of contig;
+    # :param term: "terminus" -- 's' or 'e';
 
+    # Select function for obtaining `term`-associated overlaps.
     get_matches: Callable[[List[Overlap]], Collection[Overlap]]
-    try:
-        get_matches = _select_get_matches(term)
-    except ValueError:
-        raise ValueError('Invalid value passed to function \
-`_get_overlaps_str_for_table` with argument `term`: `{}`'.format(term))
-    # end try
+    get_matches = _select_get_matches(term)
 
+    # Extract overlaps associated with `term` terminus for `key` contig
     overlaps: Collection[Overlap] = get_matches(overlap_collection[key])
 
+    # Convert `Overlap` instances to string representation
     if len(overlaps) == 0:
-        return '-'
+        return '-' # no proper overlaps found
     else:
-        match_strings: List[str] = list()
+        match_strings: List[str] = list() # list for formatted strings
 
         ovl: Overlap
         for ovl in overlaps:
+            # If contig does not match itself
             if ovl.contig1 != ovl.contig2:
+                # Letter for the first contig of the overlap
                 letter1: str = _KEY2LETTER_MAP[ovl.terminus1]
+                # Letter for the second contig of the overlap
                 letter2: str = _KEY2LETTER_MAP[ovl.terminus2]
+                # Convert and append
                 match_strings.append('[{}={}({}); ovl={}]'\
-                    .format(letter1, letter2, contig_collection[ovl.contig2].name, ovl.ovl_len))
+                    .format(letter1, letter2, contig_collection[ovl.contig2].name,
+                            ovl.ovl_len))
+            # If contig matches itself (it is circular)
             else:
                 match_strings.append('[Circle; ovl={}]'.format(ovl.ovl_len))
             # end if
         # end for
 
+        # Separate formatted strings with spaces
         return ' '.join(match_strings)
     # end if
 # end def _get_overlaps_str_for_table
@@ -263,38 +347,53 @@ def _get_overlaps_str_for_table(overlap_collection: OverlapCollection,
 def _get_overlaps_str_for_log(overlap_collection: OverlapCollection,
                               contig_collection:  ContigCollection,
                               key: ContigIndex) -> str:
+    # Function extracts overlaps of `key` contigs associated with `term` terminus,
+    #   converts this collection of `src.overlaps.Overlap` to string representation
+    #   for full log.
+    # After this, the fucntion returns this string.
+    #
+    # :param contig_collection: instance of ContigCollection returned by
+    #   `src.contigs.get_contig_collection` function;
+    # :param overlap_collection: instance of OverlapCollection returned by
+    #   `src.overlaps.detect_adjacent_contigs` function;
+    # :param key: key (index) of contig;
 
+    # Extract overlaps for current contig
     overlaps: List[Overlap] = overlap_collection[key]
 
     if len(overlaps) == 0:
-        return ''
+        return None # no proper overlaps found
     else:
-        match_strings: List[str] = list()
+        match_strings: List[str] = list() # list for formatted strings
 
         ovl: Overlap
         for ovl in overlaps:
-
+            # If contig does not match itself
             if ovl.contig1 != ovl.contig2:
 
+                # Word for the first contig of the overlap
                 word1: str = _KEY2WORD_MAP[ovl.terminus1]
+                # Word for the second contig of the overlap
                 word2: str = _KEY2WORD_MAP[ovl.terminus2]
 
-                match_strings.append('{}: {} matches {} of {} with overlap of {} b.p.'\
+                # Convert and append
+                match_strings.append('{}: {} matches {} of {} with overlap of {} bp'\
                     .format(contig_collection[key].name, word1, word2,
                         contig_collection[ovl.contig2].name, ovl.ovl_len))
             else:
-
+                # Contig is circular
                 if ovl.terminus1 == END and ovl.terminus2 == START:
-                    match_strings.append('{}: contig is circular with overlap of {} b.p.'\
+                    match_strings.append('{}: contig is circular with overlap of {} bp'\
                         .format(contig_collection[key].name, ovl.ovl_len))
-
+                # Start of contig matches it's own reverse-complement end
                 elif ovl.terminus1 == START and ovl.terminus2 == RCEND:
-                    match_strings.append('{}: start is identical to it\'s own rc-end with overlap of {} b.p.'\
+                    match_strings.append('{}: start is identical to it\'s own rc-end with overlap of {} bp'\
                         .format(contig_collection[key].name, ovl.ovl_len))
                 # end if
             # end if
         # end for
 
+        # Separate formatted strings with new line chars
         return '\n'.join(match_strings)
     # end if
 # end def
