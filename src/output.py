@@ -323,14 +323,14 @@ def _get_overlaps_str_for_table(overlap_collection: OverlapCollection,
         ovl: Overlap
         for ovl in overlaps:
             # If contig does not match itself
-            if ovl.contig1 != ovl.contig2:
+            if ovl.contig_i != ovl.contig_j:
                 # Letter for the first contig of the overlap
-                letter1: str = _KEY2LETTER_MAP[ovl.terminus1]
+                letter1: str = _KEY2LETTER_MAP[ovl.terminus_i]
                 # Letter for the second contig of the overlap
-                letter2: str = _KEY2LETTER_MAP[ovl.terminus2]
+                letter2: str = _KEY2LETTER_MAP[ovl.terminus_j]
                 # Convert and append
                 match_strings.append('[{}={}({}); ovl={}]'\
-                    .format(letter1, letter2, contig_collection[ovl.contig2].name,
+                    .format(letter1, letter2, contig_collection[ovl.contig_j].name,
                             ovl.ovl_len))
             # If contig matches itself (it is circular)
             else:
@@ -369,24 +369,24 @@ def _get_overlaps_str_for_log(overlap_collection: OverlapCollection,
         ovl: Overlap
         for ovl in overlaps:
             # If contig does not match itself
-            if ovl.contig1 != ovl.contig2:
+            if ovl.contig_i != ovl.contig_j:
 
                 # Word for the first contig of the overlap
-                word1: str = _KEY2WORD_MAP[ovl.terminus1]
+                word1: str = _KEY2WORD_MAP[ovl.terminus_i]
                 # Word for the second contig of the overlap
-                word2: str = _KEY2WORD_MAP[ovl.terminus2]
+                word2: str = _KEY2WORD_MAP[ovl.terminus_j]
 
                 # Convert and append
                 match_strings.append('{}: {} matches {} of {} with overlap of {} bp'\
                     .format(contig_collection[key].name, word1, word2,
-                        contig_collection[ovl.contig2].name, ovl.ovl_len))
+                        contig_collection[ovl.contig_j].name, ovl.ovl_len))
             else:
                 # Contig is circular
-                if ovl.terminus1 == END and ovl.terminus2 == START:
+                if ovl.terminus_i == END and ovl.terminus_j == START:
                     match_strings.append('{}: contig is circular with overlap of {} bp'\
                         .format(contig_collection[key].name, ovl.ovl_len))
                 # Start of contig matches it's own reverse-complement end
-                elif ovl.terminus1 == START and ovl.terminus2 == RCEND:
+                elif ovl.terminus_i == START and ovl.terminus_j == RCEND:
                     match_strings.append('{}: start is identical to it\'s own rc-end with overlap of {} bp'\
                         .format(contig_collection[key].name, ovl.ovl_len))
                 # end if

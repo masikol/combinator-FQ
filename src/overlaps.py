@@ -22,25 +22,25 @@ class Overlap:
     # Class represents overlap between two contigs.
 
     def __init__(self,
-                 contig1: ContigIndex, terminus1: Terminus,
-                 contig2: ContigIndex, terminus2: Terminus,
+                 contig_i: ContigIndex, terminus_i: Terminus,
+                 contig_j: ContigIndex, terminus_j: Terminus,
                  ovl_len: int) -> None:
-        # :param contig1: index (key) of the 1-st contig;
-        # :param contig2: index (key) of the 2-nd contig;
-        # :param terminus1: terminus (of the 1-st contig) involved in the overlap;
-        # :param terminus2: terminus (of the 2-nd contig) involved in the overlap;
+        # :param contig_i: index (key) of the 1-st contig;
+        # :param contig_j: index (key) of the 2-nd contig;
+        # :param terminus_i: terminus (of the 1-st contig) involved in the overlap;
+        # :param terminus_j: terminus (of the 2-nd contig) involved in the overlap;
         # :param ovl_len: length of the overlap;
-        self.contig1 = contig1
-        self.terminus1 = terminus1
-        self.contig2 = contig2
-        self.terminus2 = terminus2
+        self.contig_i = contig_i
+        self.terminus_i = terminus_i
+        self.contig_j = contig_j
+        self.terminus_j = terminus_j
         self.ovl_len: int = ovl_len
     # end def __init__
 
     # def __repr__(self) -> str:
     #     return '<{}-{}; {}-{}; len={}>'\
-    #     .format(self.contig1, self.terminus1,
-    #     self.contig2, self.terminus2, self.ovl_len)
+    #     .format(self.contig_i, self.terminus_i,
+    #     self.contig_j, self.terminus_j, self.ovl_len)
     # # end def __repr__
 # end class Overlap
 
@@ -65,6 +65,10 @@ class OverlapCollection:
         return item_to_return
     # end def __getitem__
 
+    def __len__(self):
+        return len(self._collection.keys())
+    # end def __len__
+
     def add_overlap(self, key: ContigIndex, overlap: Overlap) -> None:
         # Function adds overlap to proper list.
         #
@@ -78,9 +82,9 @@ class OverlapCollection:
         # end try
     # end def add_overlap
 
-    # def __repr__(self) -> str:
-    #     return str(self._collection)
-    # # end def __repr__
+    def __repr__(self) -> str:
+        return str(self._collection)
+    # end def __repr__
 # end class OverlapCollection
 
 
@@ -158,7 +162,7 @@ def detect_adjacent_contigs(contig_collection: ContigCollection,
                                        mink, maxk)
             if ovl_len != 0:
                 overlap_collection.add_overlap(i, Overlap(i, START, j, RCSTART, ovl_len))
-                overlap_collection.add_overlap(j, Overlap(j, RCSTART, i, START, ovl_len))
+                overlap_collection.add_overlap(j, Overlap(j, START, i, RCSTART, ovl_len))
             # end if
 
             # === Compare i-th end to reverse-complement j-th end ===
@@ -167,7 +171,7 @@ def detect_adjacent_contigs(contig_collection: ContigCollection,
                                        mink, maxk)
             if ovl_len != 0:
                 overlap_collection.add_overlap(i, Overlap(i, END, j, RCEND, ovl_len))
-                overlap_collection.add_overlap(j, Overlap(j, RCEND, i, END, ovl_len))
+                overlap_collection.add_overlap(j, Overlap(j, END, i, RCEND, ovl_len))
             # end if
 
             # === Compare i-th start to j-th start ===
