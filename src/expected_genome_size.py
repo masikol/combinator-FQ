@@ -2,7 +2,7 @@
 
 from typing import NewType, Tuple, Sequence, ValuesView
 
-from src.contigs import ContigIndex, ContigCollection
+from src.contigs import Contig, ContigIndex, ContigCollection
 from src.overlaps import Overlap, OverlapCollection
 from src.overlaps import Terminus, START, RCSTART, END, RCEND
 from src.combinator_statistics import calc_sum_contig_lengths
@@ -94,131 +94,141 @@ def calc_exp_genome_size(contig_collection: ContigCollection,
     # :param overlap_collection: instance of OverlapCollection returned by
     #   `src.overlaps.detect_adjacent_contigs` function;
 
-    matrices = _fill_matrices(overlap_collection)
-    expeted_genome_size = _trace_back(matrices, contig_collection)
+    total_overlap_len: int = 0
+    expexted_genome_size: int = calc_sum_contig_lengths(contig_collection)
+
+    i: ContigIndex
+    contig: Contig
+    for i, contig in enumerate(contig_collection):
+        overlaps = overlap_collection[i]
+
+    # end for
+
+    # matrices = _fill_matrices(overlap_collection)
+    # expeted_genome_size = _trace_back(matrices, contig_collection)
 
     return expeted_genome_size
 # end def calc_exp_genome_size
 
 
-def _fill_matrices(overlap_collection: OverlapCollection) -> Tuple[MatchMatrix, MatchMatrix,
-                                                                   MatchMatrix, MatchMatrix]:
-    # Matrix for starts matching ends:
-    SmE: MatchMatrix = MatchMatrix()
-    # Matrix for ends matching starts:
-    EmS: MatchMatrix = MatchMatrix()
-    # Matrix for starts matching starts (reverse-complement matching):
-    SmS: MatchMatrix = MatchMatrix()
-    # Matrix for ends matching ends (reverse-complement matching):
-    EmE: MatchMatrix = MatchMatrix()
+# def _fill_matrices(overlap_collection: OverlapCollection) -> Tuple[MatchMatrix, MatchMatrix,
+#                                                                    MatchMatrix, MatchMatrix]:
+#     # Matrix for starts matching ends:
+#     SmE: MatchMatrix = MatchMatrix()
+#     # Matrix for ends matching starts:
+#     EmS: MatchMatrix = MatchMatrix()
+#     # Matrix for starts matching starts (reverse-complement matching):
+#     SmS: MatchMatrix = MatchMatrix()
+#     # Matrix for ends matching ends (reverse-complement matching):
+#     EmE: MatchMatrix = MatchMatrix()
 
-    s2e_match: Tuple[Terminus, Terminus] = (START, END)
-    e2s_match: Tuple[Terminus, Terminus] = (END, START)
-    s2s_match: Tuple[Terminus, Terminus] = (START, RCSTART)
-    e2e_match: Tuple[Terminus, Terminus] = (END, RCEND)
+#     s2e_match: Tuple[Terminus, Terminus] = (START, END)
+#     e2s_match: Tuple[Terminus, Terminus] = (END, START)
+#     s2s_match: Tuple[Terminus, Terminus] = (START, RCSTART)
+#     e2e_match: Tuple[Terminus, Terminus] = (END, RCEND)
 
-    key: ContigIndex
-    for key in range(len(overlap_collection)):
-        overlaps = overlap_collection[key]
+#     key: ContigIndex
+#     for key in range(len(overlap_collection)):
+#         overlaps = overlap_collection[key]
 
-        if len(overlaps) != 0:
+#         if len(overlaps) != 0:
 
-            ovl: Overlap
-            for ovl in overlaps:
-                termini: Tuple[Terminus, Terminus] = (ovl.terminus_i, ovl.terminus_j)
+#             ovl: Overlap
+#             for ovl in overlaps:
+#                 termini: Tuple[Terminus, Terminus] = (ovl.terminus_i, ovl.terminus_j)
 
-                if termini == s2e_match:
-                    SmE[(ovl.contig_i, ovl.contig_j)] = ovl.ovl_len
+#                 if termini == s2e_match:
+#                     SmE[(ovl.contig_i, ovl.contig_j)] = ovl.ovl_len
 
-                elif termini == e2s_match:
-                    EmS[(ovl.contig_i, ovl.contig_j)] = ovl.ovl_len
+#                 elif termini == e2s_match:
+#                     EmS[(ovl.contig_i, ovl.contig_j)] = ovl.ovl_len
 
-                elif termini == s2s_match:
-                    SmS[(ovl.contig_i, ovl.contig_j)] = ovl.ovl_len
+#                 elif termini == s2s_match:
+#                     SmS[(ovl.contig_i, ovl.contig_j)] = ovl.ovl_len
 
-                elif termini == e2e_match:
-                    EmE[(ovl.contig_i, ovl.contig_j)] = ovl.ovl_len
-                # end if
-            # end for
-        # end if
-    # end for
+#                 elif termini == e2e_match:
+#                     EmE[(ovl.contig_i, ovl.contig_j)] = ovl.ovl_len
+#                 # end if
+#             # end for
+#         # end if
+#     # end for
 
-    return SmE, EmS, SmS, EmE
-# end def _fill_matrices
-
-
-def _trace_back(
-    matrices: Tuple[MatchMatrix, MatchMatrix, MatchMatrix, MatchMatrix],
-    contig_collection: ContigCollection
-) -> int:
-
-    expexted_genome_size: int = calc_sum_contig_lengths(contig_collection)
-    SmE, EmS, SmS, EmE = matrices
-
-    # For comments for loop below, let x denote to start of a contig and y -- to end of a contig.
-    # On the second iteration it will be vice versa: x will be end of a contig and y -- start.
-    # But for clarity, in comments we will write explicitly: "start" for x and "end" for y.
-
-    XmY: MatchMatrix
-    YmX: MatchMatrix
-    XmX: MatchMatrix
-    for XmY, YmX, XmX in zip((SmE, EmS), (EmS, SmE), (SmS, EmE)):
-        i: ContigIndex
-        for i in range(len(contig_collection)):
-
-            max_overlap = _get_largest_ovl(i, XmY, XmX)
-
-            if max_overlap[OVL_LEN] != 0:
-                # Find number of contig, to which current start is adjasent
-                mate_idx = max_overlap[COORDS][1]
-                # Amend genome length -- substract length of the overlap
-                #   multiplied by minimum of multiplicity of adjacent contigs
-                expexted_genome_size -= max_overlap[OVL_LEN]\
-                                        * min(
-                                              contig_collection[i].multplty,
-                                              contig_collection[mate_idx].multplty
-                                          )
-
-                _clear_matrices(i, XmY, YmX, XmX)
-            # end if
-        # end for
-    # end for
-
-    return int(expexted_genome_size)
-
-# end def _trace_back
+#     return SmE, EmS, SmS, EmE
+# # end def _fill_matrices
 
 
-def _get_largest_ovl(i, XmY, XmX):
-    XmY_ovls = XmY.get_overlaps_by_index(i)
-    XmX_ovls = XmX.get_overlaps_by_index(i)
-    if len(XmY_ovls) != 0 or len(XmX_ovls) != 0:
-        max_overlap = max(XmY_ovls + XmX_ovls,
-                          key=lambda x: x[1]
-                      )
-    else:
-        max_overlap = ((None, None), 0)
-    # end if
-    return max_overlap
-# end def _get_largest_ovl
+# def _trace_back(
+#     matrices: Tuple[MatchMatrix, MatchMatrix, MatchMatrix, MatchMatrix],
+#     contig_collection: ContigCollection
+# ) -> int:
+
+#     expexted_genome_size: int = calc_sum_contig_lengths(contig_collection)
+#     SmE, EmS, SmS, EmE = matrices
+
+#     # For comments for loop below, let x denote to start of a contig and y -- to end of a contig.
+#     # On the second iteration it will be vice versa: x will be end of a contig and y -- start.
+#     # But for clarity, in comments we will write explicitly: "start" for x and "end" for y.
+
+#     XmY: MatchMatrix
+#     YmX: MatchMatrix
+#     XmX: MatchMatrix
+#     for XmY, YmX, XmX in zip((SmE, EmS), (EmS, SmE), (SmS, EmE)):
+#         i: ContigIndex
+#         for i in range(len(contig_collection)):
+
+#             max_overlap = _get_largest_ovl(i, XmY, XmX)
+
+#             if max_overlap[OVL_LEN] != 0:
+#                 # Find number of contig, to which current start is adjasent
+#                 mate_idx = max_overlap[COORDS][1]
+#                 # Amend genome length -- substract length of the overlap
+#                 #   multiplied by minimum of multiplicity of adjacent contigs
+#                 expexted_genome_size -= max_overlap[OVL_LEN]\
+#                                         * min(
+#                                               contig_collection[i].multplty,
+#                                               contig_collection[mate_idx].multplty
+#                                           )
+
+#                 _clear_matrices(i, XmY, YmX, XmX)
+#             # end if
+#         # end for
+#     # end for
+
+#     return int(expexted_genome_size)
+
+# # end def _trace_back
 
 
-def _clear_matrices(i, XmY, YmX, XmX):
+# def _get_largest_ovl(i, XmY, XmX):
+#     XmY_ovls = XmY.get_overlaps_by_index(i)
+#     XmX_ovls = XmX.get_overlaps_by_index(i)
+#     if len(XmY_ovls) != 0 or len(XmX_ovls) != 0:
+#         max_overlap = max(XmY_ovls + XmX_ovls,
+#                           key=lambda x: x[1]
+#                       )
+#     else:
+#         max_overlap = ((None, None), 0)
+#     # end if
+#     return max_overlap
+# # end def _get_largest_ovl
 
-    # Set all elements in XmY, YmX and XmX, which overlaps with current start.
-    # I.e. not only maximum one -- all.
-    # XmY[j][i] has nothing to do with current start -- it should be left >0, if it is.
-    # That is why we actually need XmX matrices.
-    for coords in XmY.get_keys_by_i(i):
-        del XmY[coords]
-    # end for
 
-    for matrix in (YmX, XmX):
-        for coords in matrix.get_keys_by_i(i):
-            del matrix[coords]
-        # end for
-        for coords in matrix.get_keys_by_j(i):
-            del matrix[coords]
-        # end for
-    # end for
-# end def _clear_matrices
+# def _clear_matrices(i, XmY, YmX, XmX):
+
+#     # Set all elements in XmY, YmX and XmX, which overlaps with current start.
+#     # I.e. not only maximum one -- all.
+#     # XmY[j][i] has nothing to do with current start -- it should be left >0, if it is.
+#     # That is why we actually need XmX matrices.
+#     for coords in XmY.get_keys_by_i(i):
+#         del XmY[coords]
+#     # end for
+
+#     for matrix in (YmX, XmX):
+#         for coords in matrix.get_keys_by_i(i):
+#             del matrix[coords]
+#         # end for
+#         for coords in matrix.get_keys_by_j(i):
+#             del matrix[coords]
+#         # end for
+#     # end for
+# # end def _clear_matrices

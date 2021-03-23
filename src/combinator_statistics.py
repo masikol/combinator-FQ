@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from typing import Collection
+from typing import Collection, Sequence, Callable
 from statistics import mean, median
 
-from src.contigs import Contig, ContigCollection
+from src.contigs import ContigIndex, Contig, ContigCollection
 from src.overlaps import START, RCSTART, END, RCEND
 from src.overlaps import Overlap, OverlapCollection
 
@@ -14,7 +14,7 @@ class CoverageCalculator:
     def __init__(self, contig_collection: ContigCollection):
         # :param contig_collection: instance of ContigCollection returned by
         #   `src.contigs.get_contig_collection` function;
-        self.coverages: Collection = self._filter_non_none_covs(contig_collection)
+        self.coverages: Collection[float] = self._filter_non_none_covs(contig_collection)
     # end def __init__
 
     def get_min_coverage(self) -> float:
@@ -93,10 +93,10 @@ class CoverageCalculator:
 # end class CoverageCalculator
 
 
-# Only start-rcstart matches is adjacency-associated fro start-to-start matches
-_START2START_MATCH: set = {START, RCSTART}
-# Only end-rcend matches is adjacency-associated fro end-to-end matches
-_END2END_MATCH:     set = {END, RCEND}
+# # Only start-rcstart matches is adjacency-associated fro start-to-start matches
+# _START2START_MATCH: set = {START, RCSTART}
+# # Only end-rcend matches is adjacency-associated fro end-to-end matches
+# _END2END_MATCH:     set = {END, RCEND}
 
 
 def calc_sum_contig_lengths(contig_collection: ContigCollection) -> int:
@@ -127,16 +127,18 @@ def calc_lq_coef(contig_collection: ContigCollection,
     # Iterate over contigs
     for i, contig in enumerate(contig_collection):
 
+        print(contig.name)
+
         # Get rounded multiplicity
         round_multplty: int = round(contig.multplty)
         # Calculate number of termini taking account of multiplicity
         num_termini: int = int(2 * round_multplty)
 
-        # Cound overlaps associated with start
+        # Count overlaps associated with start
         num_start_matches: int = len(tuple(
             filter(is_start_match, overlap_collection[i])
         ))
-        # Cound overlaps associated with end
+        # Count overlaps associated with end
         num_end_matches:   int = len(tuple(
             filter(is_end_match, overlap_collection[i])
         ))
@@ -158,15 +160,94 @@ def calc_lq_coef(contig_collection: ContigCollection,
 # end def calc_lq_coef
 
 
+def calc_exp_genome_size(contig_collection: ContigCollection,
+                         overlap_collection: OverlapCollection) -> int:
+    # :param contig_collection: instance of ContigCollection returned by
+    #   `src.contigs.get_contig_collection` function;
+    # :param overlap_collection: instance of OverlapCollection returned by
+    #   `src.overlaps.detect_adjacent_contigs` function;
+
+    # In this variable, total length of overlapping regions will be stored
+    total_overlap_len: int = 0
+
+    # Iterate over contigs
+    i: ContigIndex
+    contig: Contig
+    for i, contig in enumerate(contig_collection):
+
+        # Get start-associated overlaps
+        start_ovls: Sequence[Overlap] = tuple(
+            filter(
+                is_start_match,
+                overlap_collection[i]
+            )
+        )
+        # Get end-associated overlaps
+        end_ovls: Sequence[Overlap] = tuple(
+            filter(
+                is_end_match,
+                overlap_collection[i]
+            )
+        )
+
+        # Function for `filter`.
+        # Purpose: we won't consider contigs with index > i
+        #   in order not to count an overlap twice.
+        not_already_counted: Callable = lambda x: x.contig_j >= i
+
+        ovls: Sequence[Overlap]
+        for ovls in (start_ovls, end_ovls):
+
+            ovls_to_add: Sequence[Overlap]
+
+            if len(ovls) <= contig.multplty:
+                # No extra overlaps. # We will just add lengths of overlaps to `total_overlap_len`.
+                ovls_to_add = filter(not_already_counted, ovls)
+            else:
+                # Some extra overlaps discovered.
+                # We will consider only M longest overlaps,
+                #   where M is contig's multiplicity.
+                ovls_to_add = filter(
+                    not_already_counted,
+                    sorted(                   # sort overlaps in a descending order
+                        ovls, key=lambda x: -x.ovl_len
+                    )[: int(contig.multplty)] # select M first (M the longest) overlaps
+                )
+            # end if
+
+            # Add lengths of overlaps to `total_overlap_len`
+            ovl: Overlap
+            for ovl in ovls_to_add:
+                total_overlap_len += ovl.ovl_len
+            # end for
+
+        # end for
+    # end for
+
+    # Calculate length of the genome, taking account of multiplicity of contigs.
+    expected_genome_size: int = sum(                      # Sum products of contigs'
+        map(                                              #   lengths and multiplicities:
+            lambda x: int(x.length * round(x.multplty)),  # len1*multplty1 + len2*multplty2 + ...
+            contig_collection
+        )
+    )\
+    - total_overlap_len                            # Subtract total length of overlapping regions
+
+    return expected_genome_size
+# end def calc_exp_genome_size
+
+
 def is_start_match(ovl: Overlap) -> bool:
     # Function returns True if overlap `ovl` is associated with start.
-    return (ovl.terminus1 == START and ovl.terminus2 == END)\
-           or {ovl.terminus1, ovl.terminus2} == _START2START_MATCH
+    return (ovl.terminus_i == START and ovl.terminus_j == END)\
+           or (ovl.terminus_i == START and ovl.terminus_j == RCSTART)
+           # or {ovl.terminus_i, ovl.terminus_j} == _START2START_MATCH
 # end def def is_start_match
 
 
 def is_end_match(ovl: Overlap) -> bool:
     # Function returns True if overlap `ovl` is associated with end.
-    return (ovl.terminus1 == END and ovl.terminus2 == START)\
-           or {ovl.terminus1, ovl.terminus2} == _END2END_MATCH
+    return (ovl.terminus_i == END and ovl.terminus_j == START)\
+           or (ovl.terminus_i == END and ovl.terminus_j == RCEND)
+           # or {ovl.terminus_i, ovl.terminus_j} == _END2END_MATCH
 # end def def is_end_match

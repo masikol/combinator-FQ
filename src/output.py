@@ -73,7 +73,8 @@ def write_summary(contig_collection: ContigCollection,
         _double_write(wrk_str, outfile)
 
         # Expected length of the genome
-        wrk_str = 'Expected length of the genome: {} bp'.format(-1) # STUB !!
+        wrk_str = 'Expected length of the genome: {} bp'\
+            .format(sts.calc_exp_genome_size(contig_collection, overlap_collection))
         _double_write(wrk_str, outfile)
 
         # Calculate coverage statistics
