@@ -63,14 +63,23 @@ class MatchMatrix:
         )
     # end def get_overlaps_by_key
 
-    def get_keys_by_index(self, index: ContigIndex) -> Sequence[Overlap]:
+    def get_keys_by_i(self, index: ContigIndex) -> Sequence[Overlap]:
         return tuple(
             filter(
                 lambda x: x[0] == index,
                 self._matrix.keys()
             )
         )
-    # end def get_overlaps_by_key
+    # end def get_keys_by_i
+
+    def get_keys_by_j(self, index: ContigIndex) -> Sequence[Overlap]:
+        return tuple(
+            filter(
+                lambda x: x[1] == index,
+                self._matrix.keys()
+            )
+        )
+    # end def get_keys_by_j
 
     def items(self) -> ValuesView:
         return self._matrix.items()
@@ -170,7 +179,7 @@ def _trace_back(
                                               contig_collection[mate_idx].multplty
                                           )
 
-                _clear_matrices(i, mate_idx, XmY, YmX, XmX)
+                _clear_matrices(i, XmY, YmX, XmX)
             # end if
         # end for
     # end for
@@ -194,21 +203,21 @@ def _get_largest_ovl(i, XmY, XmX):
 # end def _get_largest_ovl
 
 
-def _clear_matrices(i, mate_idx, XmY, YmX, XmX):
+def _clear_matrices(i, XmY, YmX, XmX):
 
     # Set all elements in XmY, YmX and XmX, which overlaps with current start.
     # I.e. not only maximum one -- all.
     # XmY[j][i] has nothing to do with current start -- it should be left >0, if it is.
     # That is why we actually need XmX matrices.
-    for coords in XmY.get_keys_by_index(i):
+    for coords in XmY.get_keys_by_i(i):
         del XmY[coords]
     # end for
 
     for matrix in (YmX, XmX):
-        for coords in matrix.get_keys_by_index(i):
+        for coords in matrix.get_keys_by_i(i):
             del matrix[coords]
         # end for
-        for coords in matrix.get_keys_by_index(mate_idx):
+        for coords in matrix.get_keys_by_j(i):
             del matrix[coords]
         # end for
     # end for

@@ -52,7 +52,7 @@ class TestExpectedGenomeSize:
         contig_collection, overlap_collection = mock_contigs
         matrices = egs._fill_matrices(overlap_collection)
         assert egs._trace_back(matrices, contig_collection) == 414
-    # end def
+    # end def test_traceback
 
 
 # end class TestExpectedGenomeSize
