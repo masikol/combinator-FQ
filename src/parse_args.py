@@ -87,12 +87,12 @@ def _get_input_fpaths(args: Sequence[str]) -> Sequence[str]:
             print('Following fasta files are found and will be processed:')
             i: int
             path: str
-            for i, path in contigs_fpaths:
+            for i, path in enumerate(contigs_fpaths):
                 print(' {}. `{}`'.format(i+1, path))
             # end for
             error: bool = True
             while error:
-                reply: str = input('Is it ok? Proceed? [Y, n]:')
+                reply: str = input('Is it ok? Proceed? [y, n]:')
                 if reply.lower() == 'y':
                     error = False
                 elif reply.lower() == 'n':
