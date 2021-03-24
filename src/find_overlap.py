@@ -36,14 +36,16 @@ def find_overlap_e2s(seq1: str, seq2: str, mink: int, maxk: int) -> int:
     # Returns 0 if overlap is less than 'mink' and
     #   length of overlap (which is <= maxk) otherwise.
 
+    ovl_len: int = 0
+
     i: int
     for i in range(mink, maxk+1):
         if seq1[-i:] == seq2[:i]:
-            return i
+            ovl_len = i
         # end if
     # end for
 
-    return 0
+    return ovl_len
 # end def find_overlap_e2s
 
 
