@@ -14,17 +14,17 @@ class CoverageCalculator:
     def __init__(self, contig_collection: ContigCollection):
         # :param contig_collection: instance of ContigCollection returned by
         #   `src.contigs.get_contig_collection` function;
-        self.coverages: Collection[float] = self._filter_non_none_covs(contig_collection)
+        self._coverages: Collection[float] = self._filter_non_none_covs(contig_collection)
     # end def __init__
 
     def get_min_coverage(self) -> float:
         # Method for obtaining minimum coverage value.
 
         min_cov: float
-        if len(self.coverages) == 0:
+        if len(self._coverages) == 0:
             min_cov = None # no coverage values are available
         else:
-            min_cov = min(self.coverages)
+            min_cov = min(self._coverages)
         # end if
 
         return min_cov
@@ -35,10 +35,10 @@ class CoverageCalculator:
         # Method for obtaining maximum coverage value.
 
         max_cov: float
-        if len(self.coverages) == 0:
+        if len(self._coverages) == 0:
             max_cov = None # no coverage values are available
         else:
-            max_cov = max(self.coverages)
+            max_cov = max(self._coverages)
         # end if
 
         return max_cov
@@ -49,10 +49,10 @@ class CoverageCalculator:
         # Method for calculating mean coverage.
 
         mean_cov: float
-        if len(self.coverages) == 0:
+        if len(self._coverages) == 0:
             mean_cov = None # no coverage values are available
         else:
-            mean_cov = mean(self.coverages)
+            mean_cov = mean(self._coverages)
             mean_cov = round(mean_cov, 2)
         # end if
 
@@ -63,10 +63,10 @@ class CoverageCalculator:
         # Method for calculating median coverage.
 
         median_cov: float
-        if len(self.coverages) == 0:
+        if len(self._coverages) == 0:
             median_cov = None # no coverage values are available
         else:
-            median_cov = median(self.coverages)
+            median_cov = median(self._coverages)
             median_cov = round(median_cov, 2)
         # end if
 
@@ -91,12 +91,6 @@ class CoverageCalculator:
         )
     # end def _filter_non_none_covs
 # end class CoverageCalculator
-
-
-# # Only start-rcstart matches is adjacency-associated fro start-to-start matches
-# _START2START_MATCH: set = {START, RCSTART}
-# # Only end-rcend matches is adjacency-associated fro end-to-end matches
-# _END2END_MATCH:     set = {END, RCEND}
 
 
 def calc_sum_contig_lengths(contig_collection: ContigCollection) -> int:
@@ -126,8 +120,6 @@ def calc_lq_coef(contig_collection: ContigCollection,
     contig: Contig
     # Iterate over contigs
     for i, contig in enumerate(contig_collection):
-
-        print(contig.name)
 
         # Get rounded multiplicity
         round_multplty: int = round(contig.multplty)

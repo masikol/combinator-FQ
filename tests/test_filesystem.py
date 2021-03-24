@@ -2,6 +2,7 @@
 
 import os
 import pytest
+
 import src.filesystem as fls
 
 # === Fixtures for `src.filesystem.is_fasta` ===
