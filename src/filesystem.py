@@ -2,6 +2,7 @@
 
 import re
 import os
+from typing import Tuple
 
 from src.platform import platf_depend_exit
 
@@ -30,7 +31,7 @@ def conf_prefix(infpath: str, outdpath: str) -> str:
     # Function returns output prefix for given input fasta file.
 
     # Make basic extention (without any numbers) by removing extention from file's name
-    prefix: str = _rm_fasta_extention(infpath)
+    prefix: str = _bname_no_fasta_ext(infpath)
 
     # Check if output file corresponding to created prefix already exists.
     output_exists: bool = os.path.exists(
@@ -41,33 +42,27 @@ def conf_prefix(infpath: str, outdpath: str) -> str:
     if output_exists:
         # Pattern for "prefix with number"
         prefix_pattern: str = r'^{}\.([0-9]+)_combinator_adjacent_contigs\.tsv$'.format(prefix)
-        # Count files with "prefix with number"
-        num_prefix_files = len(tuple(
+
+        # Find all "prefixed" files in the outdir
+        prefix_fpaths: Tuple[str] = tuple(
             filter(
                 lambda f: not re.match(prefix_pattern, f) is None,
                 os.listdir(outdpath)
             )
-        ))
-
-        # Guess that new prefix will have number `num_prefix_files + 1`
-        curr_prefix_num: int = num_prefix_files + 1
-
-        # Well, again, this file may exist
-        output_exists = os.path.exists(
-            os.path.join(outdpath, '{}_combinator_adjacent_contigs.tsv'\
-                .format(_make_numbered_prefix(infpath, curr_prefix_num)))
         )
 
-        # Increase "number" untill reaching non-extant output file
-        while output_exists:
-            curr_prefix_num += 1
-
-            output_exists = os.path.exists(
-                os.path.join(outdpath, '{}_combinator_adjacent_contigs.tsv'\
-                    .format(_make_numbered_prefix(infpath, curr_prefix_num)))
+        # Select number for new file
+        curr_prefix_num: int = 1
+        if len(prefix_fpaths) != 0:
+            # If there are some "numbered" files,
+            #   find maximum number and let `curr_prefix_num` be `max_number` + 1
+            curr_prefix_num += max(
+                map(
+                    lambda f: int(re.match(prefix_pattern, f).group(1)),
+                    prefix_fpaths
+                )
             )
-
-        # end while
+        # end if
 
         prefix = _make_numbered_prefix(infpath, curr_prefix_num)
     # end if
@@ -78,11 +73,11 @@ def conf_prefix(infpath: str, outdpath: str) -> str:
 
 def _make_numbered_prefix(infpath: str, number: int) -> str:
     # Function makes "prefix with number" for given input file.
-    return '{}.{}'.format(_rm_fasta_extention(infpath), number)
+    return '{}.{}'.format(_bname_no_fasta_ext(infpath), number)
 # end def _make_numbered_prefix
 
 
-def _rm_fasta_extention(fpath: str) -> str:
+def _bname_no_fasta_ext(fpath: str) -> str:
     # Function removes fasta extention (with `.gz` one, if it it present)
 
     # Find the extention
@@ -101,4 +96,4 @@ def _rm_fasta_extention(fpath: str) -> str:
     # end if
 
     return bname_no_ext
-# end def _rm_fasta_extention
+# end def _bname_no_fasta_ext

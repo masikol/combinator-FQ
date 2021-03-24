@@ -21,6 +21,9 @@ def main(version: str, last_update_date: str) -> None:
     for fpath in contigs_fpaths:
         print('Processing file `{}`'.format(fpath))
 
+        # Create output dir
+        make_outdir(params['o'])
+
         # Read contigs
         contig_collection: cnt.ContigCollection = cnt.get_contig_collection(fpath, params['a'])
         # Assign multiplicity to contigs
@@ -33,9 +36,6 @@ def main(version: str, last_update_date: str) -> None:
 
         # Make prefix for current input file
         prefix: str = conf_prefix(fpath, params['o'])
-
-        # Create output dir
-        make_outdir(params['o'])
 
         # Write output files
         # Write adjacency table
