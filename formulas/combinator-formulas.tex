@@ -1,0 +1,34 @@
+\documentclass{article}
+
+% \usepackage{mathtools}
+
+\begin{document}
+
+	$$L_{g} = \sum_{i=1}^{N_{cont}} L_{i}^{cont} m_{i} - \sum_{ovl \in O} L^{ovl},$$
+	
+	where
+	
+	$L_{g}$ -- expected length of the genome,
+	
+	$N_{cont}$ -- number of contigs,
+	
+	$L_{i}^{cont}$ -- length of \textit{i}-th contig,
+	
+	$O$ -- set of overlaps between contigs' starts/ends,
+	
+	$L^{ovl}$ -- length of overlap \textit{ovl}.\\
+	
+	$m_{i}$ is multiplicity of \textit{i}-th contig. It is calculated as follows: 
+	
+	$$m_{i} = \max(\left[\frac{cov_{i}}{cov_{1}}\right], 1),$$  where $cov_{i}$ is coverage of \textit{i}-th contig and $\left[\,\right]$ -- rounding to the nearest integer.
+	
+	\newpage
+	
+	$LQ = \frac{n_{a}}{n} \cdot {100}$
+	
+where $n$ is total number of contog ends (i.e.) number of contigs $\times\;2$, $n_{a}$ is number of adjacent contig ends. 
+	
+	
+	
+
+\end{document}

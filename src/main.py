@@ -8,6 +8,7 @@ import src.overlaps as ovl
 from src.parse_args import parse_args
 from src.filesystem import conf_prefix, make_outdir
 
+
 def main(version: str, last_update_date: str) -> None:
 
     contigs_fpaths: Sequence[str] # paths to input files
@@ -15,6 +16,9 @@ def main(version: str, last_update_date: str) -> None:
 
     # Parse command line arguments
     contigs_fpaths, params = parse_args(version, last_update_date)
+
+    # Report parameters of current run
+    _report_parameters(params, version, last_update_date)
 
     # Iterate over input files and process them
     fpath: str
@@ -48,3 +52,13 @@ def main(version: str, last_update_date: str) -> None:
         print('-'*20)
     # end for
 # end def main
+
+
+def _report_parameters(params, version, last_update_date):
+    print('{}. Version {}. {} edition.'.format('combinator-FQ', version, last_update_date))
+    print('Parameters:')
+    print(' - Minimum k: {} bp.'.format(params['i']))
+    print(' - Maximum k: {} bp.'.format(params['a']))
+    print(' - Output directory: `{}`.'.format(params['o']))
+    print('-'*20)
+# end def _report_parameters

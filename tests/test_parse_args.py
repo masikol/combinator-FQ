@@ -32,7 +32,7 @@ def two_files() -> Paths:
     # Returns tuple of two paths to input fasta files
     return tuple([
         os.path.join('tests', 'data', 'test_contigs_a5_0.fasta'),
-        os.path.join('tests', 'data', 'test_contigs_spades_1.fasta')
+        os.path.join('tests', 'data', 'test_contigs_spades_1.fasta.gz')
     ])
 # end def two_files
 
@@ -253,7 +253,7 @@ class TestGetInputFpaths:
         # Tests how it handles tuple of tow paths to input fasta file
         expected: Tuple[str] = tuple([
             os.path.join(os.getcwd(), 'tests', 'data', 'test_contigs_a5_0.fasta'),
-            os.path.join(os.getcwd(), 'tests', 'data', 'test_contigs_spades_1.fasta')
+            os.path.join(os.getcwd(), 'tests', 'data', 'test_contigs_spades_1.fasta.gz')
         ])
     # end def test_get_input_fpaths_two_files
 

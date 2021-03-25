@@ -8,8 +8,6 @@ import src.contigs as cnt
 import src.overlaps as ovl
 
 
-
-
 MockContigsFixture = Tuple[cnt.ContigCollection, ovl.OverlapCollection]
 
 
@@ -29,7 +27,7 @@ def mock_contigs_spades_0() -> MockContigsFixture:
 def mock_contigs_spades_1() -> MockContigsFixture:
 
     contig_collection, overlap_collection = _do_combinator_work(
-        infpath=os.path.join('tests', 'data/test_contigs_spades_1.fasta'),
+        infpath=os.path.join('tests', 'data/test_contigs_spades_1.fasta.gz'),
         mink=8,
         maxk=17
     )
