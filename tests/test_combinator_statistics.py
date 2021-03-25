@@ -12,6 +12,9 @@ from tests.mock_contigs import mock_contigs_a5_0, mock_contigs_mix_0
 from tests.mock_contigs import mock_contigs_spades_no_multplty_0
 
 
+CovCalc = sts.CoverageCalculator
+
+
 class TestCoverageCalculator:
     # Class for testing class `src.combinator_statistics.CoverageCalculator`
 
@@ -19,7 +22,7 @@ class TestCoverageCalculator:
     def test_filter_non_none_covs_spades_0(self, mock_contigs_spades_0):
         # Should find 4 "coverage-containing" contigs in `mock_contigs_spades_0`
         contig_collection, overlap_collection = mock_contigs_spades_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_len: int = 4
 
@@ -29,7 +32,7 @@ class TestCoverageCalculator:
     def test_filter_non_none_covs_spades_1(self, mock_contigs_spades_1):
         # Should find 7 "coverage-containing" contigs in `mock_contigs_spades_1`
         contig_collection, overlap_collection = mock_contigs_spades_1
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_len: int = 7
 
@@ -39,7 +42,7 @@ class TestCoverageCalculator:
     def test_filter_non_none_covs_a5_0(self, mock_contigs_a5_0):
         # Should find no "coverage-containing" contigs in `mock_contigs_a5_0`
         contig_collection, overlap_collection = mock_contigs_a5_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_len: int = 0
 
@@ -49,7 +52,7 @@ class TestCoverageCalculator:
     def test_filter_non_none_covs_mix_0(self, mock_contigs_mix_0):
         # Should find 2 "coverage-containing" contigs in `mock_contigs_mix_0`
         contig_collection, overlap_collection = mock_contigs_mix_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_len: int = 2
 
@@ -59,7 +62,7 @@ class TestCoverageCalculator:
     def test_filter_non_none_covs_spades_no_multiplty_0(self, mock_contigs_spades_no_multplty_0):
         # Should find 4 "coverage-containing" contigs in `mock_contigs_spades_no_multplty_0`
         contig_collection, overlap_collection = mock_contigs_spades_no_multplty_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_len: int = 4
 
@@ -71,7 +74,7 @@ class TestCoverageCalculator:
     def test_get_min_coverage_spades_0(self, mock_contigs_spades_0):
         # Should return 18.28 for `mock_contigs_spades_0`
         contig_collection, overlap_collection = mock_contigs_spades_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_min_cov: float = 18.28
         assert abs(cov_calc.get_min_coverage() - expected_min_cov) < 1e-3
@@ -80,7 +83,7 @@ class TestCoverageCalculator:
     def test_get_min_coverage_spades_1(self, mock_contigs_spades_1):
         # Should return 24.26 for `mock_contigs_spades_1`
         contig_collection, overlap_collection = mock_contigs_spades_1
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_min_cov: float = 24.26
         assert abs(cov_calc.get_min_coverage() - expected_min_cov) < 1e-3
@@ -89,7 +92,7 @@ class TestCoverageCalculator:
     def test_get_min_coverage_a5_0(self, mock_contigs_a5_0):
         # Should return None for `mock_contigs_a5_0`
         contig_collection, overlap_collection = mock_contigs_a5_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_min_cov: float = None
         assert cov_calc.get_min_coverage() is expected_min_cov
@@ -98,7 +101,7 @@ class TestCoverageCalculator:
     def test_get_min_coverage_mix_0(self, mock_contigs_mix_0):
         # Should return 18.28 for `mock_contigs_mix_0`
         contig_collection, overlap_collection = mock_contigs_mix_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_min_cov: float = 18.28
         assert abs(cov_calc.get_min_coverage() - expected_min_cov) < 1e-3
@@ -107,7 +110,7 @@ class TestCoverageCalculator:
     def test_get_min_coverage_spades_no_multplty_0_0(self, mock_contigs_spades_no_multplty_0):
         # Should return 0.00 for `mock_contigs_spades_no_multplty_0`
         contig_collection, overlap_collection = mock_contigs_spades_no_multplty_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_min_cov: float = 0.00
         assert abs(cov_calc.get_min_coverage() - expected_min_cov) < 1e-3
@@ -118,7 +121,7 @@ class TestCoverageCalculator:
     def test_get_max_coverage_spades_0(self, mock_contigs_spades_0):
         # Should return 43.73 for `mock_contigs_spades_0`
         contig_collection, overlap_collection = mock_contigs_spades_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_max_cov: float = 43.73
         assert abs(cov_calc.get_max_coverage() - expected_max_cov) < 1e-3
@@ -127,7 +130,7 @@ class TestCoverageCalculator:
     def test_get_max_coverage_spades_1(self, mock_contigs_spades_1):
         # Should return 24.26 for `mock_contigs_spades_1`
         contig_collection, overlap_collection = mock_contigs_spades_1
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_max_cov: float = 24.26
         assert abs(cov_calc.get_max_coverage() - expected_max_cov) < 1e-3
@@ -136,7 +139,7 @@ class TestCoverageCalculator:
     def test_get_max_coverage_a5_0(self, mock_contigs_a5_0):
         # Should return None for `mock_contigs_a5_0`
         contig_collection, overlap_collection = mock_contigs_a5_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_max_cov: float = None
         assert cov_calc.get_max_coverage() is expected_max_cov
@@ -145,7 +148,7 @@ class TestCoverageCalculator:
     def test_get_max_coverage_mix_0(self, mock_contigs_mix_0):
         # Should return 28.68 for `mock_contigs_mix_0`
         contig_collection, overlap_collection = mock_contigs_mix_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_max_cov: float = 28.68
         assert abs(cov_calc.get_max_coverage() - expected_max_cov) < 1e-3
@@ -154,7 +157,7 @@ class TestCoverageCalculator:
     def test_get_max_coverage_spades_no_multplty_0_0(self, mock_contigs_spades_no_multplty_0):
         # Should return 43.73 for `mock_contigs_spades_no_multplty_0`
         contig_collection, overlap_collection = mock_contigs_spades_no_multplty_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_max_cov: float = 43.73
         assert abs(cov_calc.get_max_coverage() - expected_max_cov) < 1e-3
@@ -165,7 +168,7 @@ class TestCoverageCalculator:
     def test_get_mean_coverage_spades_0(self, mock_contigs_spades_0):
         # Should return 28.74 for `mock_contigs_spades_0`
         contig_collection, overlap_collection = mock_contigs_spades_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_mean_cov: float = 28.74
         assert abs(cov_calc.calc_mean_coverage() - expected_mean_cov) < 1e-3
@@ -174,7 +177,7 @@ class TestCoverageCalculator:
     def test_get_mean_coverage_spades_1(self, mock_contigs_spades_1):
         # Should return 24.26 for `mock_contigs_spades_1`
         contig_collection, overlap_collection = mock_contigs_spades_1
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_mean_cov: float = 24.26
         assert abs(cov_calc.calc_mean_coverage() - expected_mean_cov) < 1e-3
@@ -183,7 +186,7 @@ class TestCoverageCalculator:
     def test_get_mean_coverage_a5_0(self, mock_contigs_a5_0):
         # Should return None for `mock_contigs_a5_0`
         contig_collection, overlap_collection = mock_contigs_a5_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_mean_cov: float = None
         assert cov_calc.calc_mean_coverage() is expected_mean_cov
@@ -192,7 +195,7 @@ class TestCoverageCalculator:
     def test_get_mean_coverage_mix_0(self, mock_contigs_mix_0):
         # Should return 23.48 for `mock_contigs_mix_0`
         contig_collection, overlap_collection = mock_contigs_mix_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_mean_cov: float = 23.48
         assert abs(cov_calc.calc_mean_coverage() - expected_mean_cov) < 1e-3
@@ -201,7 +204,7 @@ class TestCoverageCalculator:
     def test_get_mean_coverage_spades_no_multplty_0_0(self, mock_contigs_spades_no_multplty_0):
         # Should return 22.67 for `mock_contigs_spades_no_multplty_0`
         contig_collection, overlap_collection = mock_contigs_spades_no_multplty_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_mean_cov: float = 22.67
         assert abs(cov_calc.calc_mean_coverage() - expected_mean_cov) < 1e-3
@@ -212,7 +215,7 @@ class TestCoverageCalculator:
     def test_get_median_coverage_spades_0(self, mock_contigs_spades_0):
         # Should return 26.47 for `mock_contigs_spades_0`
         contig_collection, overlap_collection = mock_contigs_spades_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_median_cov: float = 26.47
         assert abs(cov_calc.calc_median_coverage() - expected_median_cov) < 1e-3
@@ -221,7 +224,7 @@ class TestCoverageCalculator:
     def test_get_median_coverage_spades_1(self, mock_contigs_spades_1):
         # Should return 24.26 for `mock_contigs_spades_1`
         contig_collection, overlap_collection = mock_contigs_spades_1
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_median_cov: float = 24.26
         assert abs(cov_calc.calc_median_coverage() - expected_median_cov) < 1e-3
@@ -230,7 +233,7 @@ class TestCoverageCalculator:
     def test_get_median_coverage_a5_0(self, mock_contigs_a5_0):
         # Should return None for `mock_contigs_a5_0`
         contig_collection, overlap_collection = mock_contigs_a5_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_median_cov: float = None
         assert cov_calc.calc_median_coverage() is expected_median_cov
@@ -239,7 +242,7 @@ class TestCoverageCalculator:
     def test_get_median_coverage_mix_0(self, mock_contigs_mix_0):
         # Should return 23.48 for `mock_contigs_mix_0`
         contig_collection, overlap_collection = mock_contigs_mix_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_median_cov: float = 23.48
         assert abs(cov_calc.calc_median_coverage() - expected_median_cov) < 1e-3
@@ -248,7 +251,7 @@ class TestCoverageCalculator:
     def test_get_median_coverage_spades_no_multplty_0_0(self, mock_contigs_spades_no_multplty_0):
         # Should return 23.48 for `mock_contigs_spades_no_multplty_0`
         contig_collection, overlap_collection = mock_contigs_spades_no_multplty_0
-        cov_calc = sts.CoverageCalculator(contig_collection)
+        cov_calc: CovCalc = sts.CoverageCalculator(contig_collection)
 
         expected_median_cov: float = 23.48
         assert abs(cov_calc.calc_median_coverage() - expected_median_cov) < 1e-3

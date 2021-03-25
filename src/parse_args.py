@@ -47,9 +47,9 @@ def parse_args(version: str, last_update_date: str) -> Tuple[Sequence[str], Mapp
 
     # Verify mink and maxk:
     if params['i'] > params['a']:
-        if '-i' not in sys.argv[1:] or '--mink' not in sys.argv[1:]:
+        if '-i' not in sys.argv[1:] and '--mink' not in sys.argv[1:]:
             params['i'] = params['a']
-        elif '-a' not in sys.argv[1:] or '--maxk' not in sys.argv[1:]:
+        elif '-a' not in sys.argv[1:] and '--maxk' not in sys.argv[1:]:
             params['a'] = params['i']
         else:
             print('Error: minimum length of a k-mer is greater than maximum length of a k-mer.')
@@ -175,7 +175,7 @@ def _parse_options(opts: Sequence[Sequence[str]]) -> Mapping[str, Any]:
 
         # Outdir
         elif opt in ('-o', '--outdir'):
-            params['o'] = arg
+            params['o'] = os.path.abspath(arg)
 
         # Minimim k-mer size
         elif opt in ('-i', '--mink'):
