@@ -39,9 +39,38 @@ class Overlap:
 
     def __repr__(self) -> str:
         return '<{}-{}; {}-{}; len={}>'\
-        .format(self.contig_i, self.terminus_i,
-        self.contig_j, self.terminus_j, self.ovl_len)
+            .format(self.contig_i, self.terminus_i,
+                self.contig_j, self.terminus_j, self.ovl_len)
     # end def __repr__
+
+    def __eq__(self, other) -> bool:
+        if self.contig_i != other.contig_i:
+            return False
+        # end if
+        if self.contig_j != other.contig_j:
+            return False
+        # end if
+
+        if self.terminus_i != other.terminus_i:
+            return False
+        # end if
+        if self.terminus_j != other.terminus_j:
+            return False
+        # end if
+
+        if self.ovl_len != other.ovl_len:
+            return False
+        # end if
+
+        return True
+    # end def __eq__
+
+    def __hash__(self) -> int:
+        return hash(repr(self))
+    # end def __hash__
+
+        return True
+    # end def __eq__
 # end class Overlap
 
 

@@ -2,7 +2,7 @@
 
 import os
 import pytest
-from typing import Tuple, Sequence
+from typing import Tuple, Sequence, Callable, Any, Generator
 
 import src.contigs as cnt
 
@@ -94,6 +94,69 @@ def valid_a5_header() -> str:
     # Returns valid a5 header
     return 'scaffold_24'
 # end def valid_a5_header
+
+
+# === Fixtures for function `src.contigs.get_contig_collection` ===
+
+@pytest.fixture
+def spades_1_maxk_17() -> Tuple[str, int]:
+    return os.path.join('tests', 'data', 'test_contigs_spades_1.fasta.gz'), 17
+# end def spades_1_maxk_17
+
+
+# === Fixtures for function `src.contigs.assign_multiplty` ===
+
+@pytest.fixture
+def contig_collection_spades_0() -> cnt.ContigCollection:
+    contig_collection: cnt.ContigCollection = cnt.get_contig_collection(
+        os.path.join('tests', 'data', 'test_contigs_spades_0.fasta'),
+        25 # maxk
+    )
+
+    return contig_collection
+# end def contig_collection_spades_0
+
+@pytest.fixture
+def contig_collection_spades_1() -> cnt.ContigCollection:
+    contig_collection: cnt.ContigCollection = cnt.get_contig_collection(
+        os.path.join('tests', 'data', 'test_contigs_spades_1.fasta.gz'),
+        17 # maxk
+    )
+
+    return contig_collection
+# end def contig_collection_spades_1
+
+@pytest.fixture
+def contig_collection_a5_0() -> cnt.ContigCollection:
+    contig_collection: cnt.ContigCollection = cnt.get_contig_collection(
+        os.path.join('tests', 'data', 'test_contigs_a5_0.fasta'),
+        25 # maxk
+    )
+
+    return contig_collection
+# end def contig_collection_a5_0
+
+@pytest.fixture
+def contig_collection_mix_0() -> cnt.ContigCollection:
+    contig_collection: cnt.ContigCollection = cnt.get_contig_collection(
+        os.path.join('tests', 'data', 'test_contigs_mix_0.fasta'),
+        25 # maxk
+    )
+
+    return contig_collection
+# end def contig_collection_mix_0
+
+@pytest.fixture
+def contig_collection_spades_no_multplty_0() -> cnt.ContigCollection:
+    contig_collection: cnt.ContigCollection = cnt.get_contig_collection(
+        os.path.join('tests', 'data', 'test_contigs_spades_no_multplty_0.fasta'),
+        25 # maxk
+    )
+
+    return contig_collection
+# end def contig_collection_spades_no_multplty_0
+
+
 
 # === Test classes ===
 
@@ -301,3 +364,185 @@ class TestCalcGcContent:
         assert abs(cnt._calc_gc_content(degenerate_sequence) - expected) < 1e-2
     # end def test_calc_gc_content_degenerate_seq
 # end class TestCalcGcContent
+
+
+class TestGetContigCollection:
+    # Class for testing function `src.contigs.get_contig_collection`
+
+    GetAttrFunc = Callable[[cnt.Contig], Any]
+
+    @staticmethod
+    def _attribute_generator() -> Generator[Tuple[str, GetAttrFunc, type], None, None]:
+        # Generator yields stuff for testing attributes of Class `src.contigs.Contig`:
+        #  1. Name of and attribute.
+        #  2. Function for accessing this attribute.
+        #  3. Type to which an attribure must belong.
+
+        yield 'name', lambda x: x.name, str
+        yield 'length', lambda x: x.length, int
+        yield 'cov', lambda x: x.cov, float
+        yield 'gc_content', lambda x: x.gc_content, float
+        yield 'start', lambda x: x.start, str
+        yield 'rcstart', lambda x: x.rcstart, str
+        yield 'end', lambda x: x.end, str
+        yield 'rcend', lambda x: x.rcend, str
+    # end def _test_attribute
+
+    def test_get_contig_collection_spades_1(self, spades_1_maxk_17):
+        # Function for testing function `src.contigs.get_contig_collection`
+
+        infpath: str = spades_1_maxk_17[0]
+        maxk: int = spades_1_maxk_17[1]
+
+        contig_collection: cnt.ContigCollection = cnt.get_contig_collection(infpath, maxk)
+
+        # Check length of the collection
+        expected_len: int = 7
+        assert len(contig_collection) == expected_len
+
+        # Check if all items are of class `src.contigs.Contig`
+        assert all(map(lambda x: isinstance(x, cnt.Contig), contig_collection))
+
+        # Check if all `Contig`s' attributes are not None (except `multplty`) and of proper types
+        attr_name: str
+        get_attr: GetAttrFunc
+        attr_type: type
+        for attr_name, get_attr, attr_type in self._attribute_generator():
+            try:
+                # Check if it is not None
+                assert all(map(lambda x: not get_attr(x) is None, contig_collection))
+                # Check type
+                assert all(map(lambda x: isinstance(get_attr(x), attr_type), contig_collection))
+            except AttributeError:
+                pytest.fail('Error: Contig instance attribute has no `{}` attribute.'\
+                    .format(attr_name))
+            # end try
+        # end for
+
+    # end def test_get_contig_collection_spades_1
+# end class TestGetContigCollection
+
+
+class TestAssignMultiplty:
+    # Class for testing function `src.contigs.assign_multiplty`
+
+    def test_assign_multiplty_spades_0(self, contig_collection_spades_0):
+        # Test how the function assigns multiplicity to contigs from
+        #   file `test_contigs_spades_0.fasta
+
+        # "Rename" variable
+        contig_collection: cnt.ContigCollection = contig_collection_spades_0
+
+        # Assign
+        cnt.assign_multiplty(contig_collection)
+
+        expected_multplts: Sequence[float] = tuple([
+            1.0, # NODE_1
+            1.0, # NODE_2
+            1.8, # NODE_3
+            1.2  # NODE_4
+        ])
+
+        obtained_multplts: Sequence[float] = tuple(map(lambda x: x.multplty, contig_collection))
+
+        # Compare lengths
+        assert len(obtained_multplts) == len(expected_multplts)
+
+        # Compare multiplicities
+        for expected, obtained in zip(expected_multplts, obtained_multplts):
+            assert abs(obtained - expected) < 1e-1
+        # end for
+    # end def test_assign_multiplty_spades_0
+
+    def test_assign_multiplty_spades_1(self, contig_collection_spades_1):
+        # Test how the function assigns multiplicity to contigs from
+        #   file `test_contigs_spades_1.fasta.gz`
+
+        # "Rename" variable
+        contig_collection: cnt.ContigCollection = contig_collection_spades_1
+
+        # Assign
+        cnt.assign_multiplty(contig_collection)
+
+        expected_multplts: Sequence[float] = tuple([1.0] * 7)
+
+        obtained_multplts: Sequence[float] = tuple(map(lambda x: x.multplty, contig_collection))
+
+        # Compare lengths
+        assert len(obtained_multplts) == len(expected_multplts)
+
+        # Compare multiplicities
+        for expected, obtained in zip(expected_multplts, obtained_multplts):
+            assert abs(obtained - expected) < 1e-1
+        # end for
+    # end def test_assign_multiplty_spades_1
+
+    def test_assign_multiplty_a5_0(self, contig_collection_a5_0):
+        # Test how the function assigns multiplicity to contigs from
+        #   file `test_contigs_a5_0.fasta`
+
+        # "Rename" variable
+        contig_collection: cnt.ContigCollection = contig_collection_a5_0
+
+        # Assign
+        cnt.assign_multiplty(contig_collection)
+
+        expected_multplts: Sequence[float] = tuple([1.0] * 4)
+
+        obtained_multplts: Sequence[float] = tuple(map(lambda x: x.multplty, contig_collection))
+
+        # Compare lengths
+        assert len(obtained_multplts) == len(expected_multplts)
+
+        # Compare multiplicities
+        for expected, obtained in zip(expected_multplts, obtained_multplts):
+            assert abs(obtained - expected) < 1e-1
+        # end for
+    # end def test_assign_multiplty_a5_0
+
+    def test_assign_multiplty_mix_0(self, contig_collection_mix_0):
+        # Test how the function assigns multiplicity to contigs from
+        #   file `test_contigs_mix_0.fasta`
+
+        # "Rename" variable
+        contig_collection: cnt.ContigCollection = contig_collection_mix_0
+
+        # Assign
+        cnt.assign_multiplty(contig_collection)
+
+        expected_multplts: Sequence[float] = tuple([1.0] * 4)
+
+        obtained_multplts: Sequence[float] = tuple(map(lambda x: x.multplty, contig_collection))
+
+        # Compare lengths
+        assert len(obtained_multplts) == len(expected_multplts)
+
+        # Compare multiplicities
+        for expected, obtained in zip(expected_multplts, obtained_multplts):
+            assert abs(obtained - expected) < 1e-1
+        # end for
+    # end def test_assign_multiplty_mix_0
+
+    def test_assign_multiplty_spades_no_multplty_0(self, contig_collection_spades_no_multplty_0):
+        # Test how the function assigns multiplicity to contigs from
+        #   file `test_contigs_spades_no_multplty_0.fasta`
+
+        # "Rename" variable
+        contig_collection: cnt.ContigCollection = contig_collection_spades_no_multplty_0
+
+        # Assign
+        cnt.assign_multiplty(contig_collection)
+
+        expected_multplts: Sequence[float] = tuple([1.0] * 4)
+
+        obtained_multplts: Sequence[float] = tuple(map(lambda x: x.multplty, contig_collection))
+
+        # Compare lengths
+        assert len(obtained_multplts) == len(expected_multplts)
+
+        # Compare multiplicities
+        for expected, obtained in zip(expected_multplts, obtained_multplts):
+            assert abs(obtained - expected) < 1e-1
+        # end for
+    # end def test_assign_multiplty_spades_no_multplty_0
+# end class TestAssignMultiplty

@@ -112,7 +112,8 @@ def get_contig_collection(infpath: str, maxk: int) -> ContigCollection:
 def assign_multiplty(contig_collection: ContigCollection) -> None:
     # Function assigns multiplicity (copies of this contig in the genome) to contigs.
     # :param contig_collection: instanec of `ContigCollection`
-    #   returned by function `get_contig_collection`; 
+    #   returned by function `get_contig_collection`;
+    # Function modifies `contig_collection` argument passed to it.
 
     # Coverage of 1-st contig can be zero.
     # In this case we cannot calculate multiplicity of contigs.

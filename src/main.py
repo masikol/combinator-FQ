@@ -60,5 +60,5 @@ def _report_parameters(params, version, last_update_date):
     print(' - Minimum k: {} bp.'.format(params['i']))
     print(' - Maximum k: {} bp.'.format(params['a']))
     print(' - Output directory: `{}`.'.format(params['o']))
-    print('-'*20)
+    print('-' * 20)
 # end def _report_parameters
