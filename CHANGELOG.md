@@ -1,5 +1,14 @@
 # combinator-FQ changelog
 
+## 2021-05-12 edition
+
+- combinator now calculates multiplicity of contigs based on number of overlaps, if no coverage information is present in sequence headers.
+- Minor output formatting fixes.
+
+### Version changes:
+
+`1.4.a -> 1.5.a`
+
 ## 2021-03-26 edition
 
 - performed total refactoring. Memory usage is reduced. Made some cosmetic fixes.

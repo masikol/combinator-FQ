@@ -21,7 +21,11 @@
 	$m_{i}$ is multiplicity of \textit{i}-th contig. It is calculated as follows: 
 	
 	$$m_{i} = \max(\left[\frac{cov_{i}}{cov_{1}}\right], 1),$$  where $cov_{i}$ is coverage of \textit{i}-th contig and $\left[\,\right]$ -- rounding to the nearest integer.
-	
+
+	\newpage
+
+	$$m_{i} = \max(1.0, \: \min(N_{S}, N_{E})),$$  where $N_{S}$ is number of contigs which do overlap with start of the i-th contig, and $N_{E}$ -- with end.
+
 	\newpage
 	
 	$LQ = \frac{n_{a}}{n} \cdot {100}$

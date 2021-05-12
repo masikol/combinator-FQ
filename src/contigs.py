@@ -109,54 +109,6 @@ def get_contig_collection(infpath: str, maxk: int) -> ContigCollection:
 # end def get_contig_collection
 
 
-def assign_multiplty(contig_collection: ContigCollection) -> None:
-    # Function assigns multiplicity (copies of this contig in the genome) to contigs.
-    # :param contig_collection: instanec of `ContigCollection`
-    #   returned by function `get_contig_collection`;
-    # Function modifies `contig_collection` argument passed to it.
-
-    # Coverage of 1-st contig can be zero.
-    # In this case we cannot calculate multiplicity of contigs.
-    # `calc_multplty` (calculate multiplicity) will indicate whether we can calculate multiplicity.
-    calc_multplty: bool = False
-
-    if not contig_collection[0].cov is None:
-        if contig_collection[0].cov < 1e-6:
-            # Coverage of 1-st contig is zero
-            print('\n`{}` has zero coverage (less than 1e-6 actually).'\
-                .format(contig_collection[0].name))
-            print('Multiplicity of contigs cannot be calculated.\n')
-            # We have SPAdes assembly, and coverage of NODE_1 is zero
-            calc_multplty = False
-        else:
-            # Coverage of 1-st contig is not zero
-            calc_multplty = True
-        # end if
-    else:
-        # We have non-SPAdes assembly, no coverage provided
-        calc_multplty = False
-    # end if
-
-    # Calculate multiplicity of contig:
-    i: ContigIndex
-    if calc_multplty:
-        for i in range(len(contig_collection)):
-            try:
-                multiplicity: float = contig_collection[i].cov / contig_collection[0].cov
-            except TypeError:
-                contig_collection[i].multplty = 1 # there can be no coverage info for some contigs
-            else:
-                contig_collection[i].multplty = round(max(multiplicity, 1), 1)
-            # end try
-        # end if
-    else:
-        for i in range(len(contig_collection)):
-            contig_collection[i].multplty = 1
-        # end for
-    # end if
-# end def assign_multiplty
-
-
 def _calc_gc_content(sequence: str) -> float:
     # Function calculates GC-content.
     # :param sequence: sequence to calculate GC content;
@@ -168,7 +120,7 @@ def _calc_gc_content(sequence: str) -> float:
         gc_count += sequence.count(base)
     # end for
 
-    gc_content: float = round((gc_count / len(sequence) * 100), 2)
+    gc_content: float = (gc_count / len(sequence) * 100)
 
     return gc_content
 # end def _calc_gc_content
@@ -188,7 +140,7 @@ def _format_contig_name(fasta_header: str) -> str:
     # Remove extra underscores from the name
     fasta_header = fasta_header.strip('_')
 
-    name: str
+    contig_name: str
     if _is_spades_header(fasta_header):
         # Get name in 'NODE_<NUMBER>' format
         contig_name = 'NODE_' + fasta_header.split('_')[1]
@@ -214,7 +166,7 @@ def _parse_coverage(fasta_header: str) -> str:
     if _is_spades_header(fasta_header):
         # Parse coverage from SPAdes's header
         try:
-            cov = round(float(fasta_header.split('_')[5]), 2)
+            cov = float(fasta_header.split('_')[5])
         except ValueError:
             cov = None
         # end try

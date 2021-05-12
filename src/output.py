@@ -166,15 +166,14 @@ def write_adjacency_table(contig_collection: ContigCollection,
             outfile.write('{}\t'.format(contig.length))
 
             # Coverage
-            wrk_str = '-' if contig.cov is None else str(contig.cov)
+            wrk_str = '-' if contig.cov is None else '{:.2f}'.format(contig.cov)
             outfile.write('{}\t'.format(wrk_str))
 
             # GC content of the contig
-            outfile.write(str(contig.gc_content) + '\t')
+            outfile.write('{:.2f}'.format(contig.gc_content) + '\t')
 
             # Multiplicity
-            wrk_str = '-' if contig.cov is None else str(contig.multplty)
-            outfile.write('{}\t'.format(wrk_str))
+            outfile.write('{:.1f}\t'.format(contig.multplty))
 
             # Empty column for annotation
             outfile.write('\t')

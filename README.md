@@ -23,6 +23,10 @@ combinator-FQ calculates expected length of the genome as follows:
 
 ![](formulas/exp_genome_len.png)
 
+If no coverage information is present in sequence headers, multiplicity is calculated based on discovered overlaps of the i-th contig as follows:
+
+![](formulas/ovl_multplty.png)
+
 ### Dependencies
 
 The script is written in Python, so you need Python interpreter (version 3.X) to use it. [Here you can download Python](https://www.python.org/downloads/).

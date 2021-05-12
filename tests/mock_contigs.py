@@ -6,6 +6,7 @@ from typing import Tuple
 
 import src.contigs as cnt
 import src.overlaps as ovl
+import src.assign_multiplicity as amu
 
 
 MockContigsFixture = Tuple[cnt.ContigCollection, ovl.OverlapCollection]
@@ -78,13 +79,14 @@ def _do_combinator_work(infpath: str, mink: int, maxk: int) -> MockContigsFixtur
         infpath,
         maxk
     )
-    # Assign multiplicity to contigs
-    cnt.assign_multiplty(contig_collection)
 
     # Detect adjacent contigs
     overlap_collection: ovl.OverlapCollection = ovl.detect_adjacent_contigs(
         contig_collection, mink, maxk
     )
+
+    # Assign multiplicity to contigs
+    amu.assign_multiplty(contig_collection, overlap_collection)
 
     return contig_collection, overlap_collection
 # end def _do_combinator_work

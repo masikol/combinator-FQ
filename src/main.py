@@ -5,6 +5,7 @@ from typing import Sequence, Dict, Any
 import src.output as out
 import src.contigs as cnt
 import src.overlaps as ovl
+import src.assign_multiplicity as amu
 from src.parse_args import parse_args
 from src.filesystem import conf_prefix, make_outdir
 
@@ -30,13 +31,14 @@ def main(version: str, last_update_date: str) -> None:
 
         # Read contigs
         contig_collection: cnt.ContigCollection = cnt.get_contig_collection(fpath, params['a'])
-        # Assign multiplicity to contigs
-        cnt.assign_multiplty(contig_collection)
 
         # Detect adjacent contigs
         overlap_collection: ovl.OverlapCollection = ovl.detect_adjacent_contigs(
             contig_collection, params['i'], params['a']
         )
+
+        # Assign multiplicity to contigs
+        amu.assign_multiplty(contig_collection, overlap_collection)
 
         # Make prefix for current input file
         prefix: str = conf_prefix(fpath, params['o'])

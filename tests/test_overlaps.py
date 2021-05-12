@@ -20,9 +20,6 @@ def contig_collection_spades_0() -> cnt.ContigCollection:
         25 # maxk
     )
 
-    # Assign multiplicity to contigs
-    cnt.assign_multiplty(contig_collection)
-
     return contig_collection, 16, 25
 # end def contig_collection_spades_0
 
