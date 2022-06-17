@@ -117,7 +117,10 @@ def _get_input_fpaths(args: Sequence[str]) -> Sequence[str]:
                 platf_depend_exit(1)
             # end if
             if not src.filesystem.is_fasta(arg):
-                print('Error: file `{}` is not a fasta file, considering it\'s extention.'\
+                print('Error: file `{}` is not a fasta file, considering it\'s extention.\n'
+                      '  It if is indeed a fasta file, sorry for the inconvenience'
+                      ' and please change it\'s extention to'
+                      ' `.fa`, `.fasta`, `.fna`, `.fsa` or `.fsa_nt` (the file may be gzipped).'\
                     .format(arg))
                 platf_depend_exit(1)
             # end if

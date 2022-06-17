@@ -1,5 +1,7 @@
 # combinator-FQ
-Tool for detecting adjacent contigs and calculating LQ-coefficient
+A tool for detecting adjacent contigs and calculating LQ-coefficient.
+
+Latest version: `1.5.b`.
 
 ### Description
 

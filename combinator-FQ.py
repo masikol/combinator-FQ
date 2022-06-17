@@ -3,9 +3,9 @@
 
 import sys
 
-__version__: str  = '1.5.a'
+__version__: str  = '1.5.b'
 # Year, month, day
-__last_update_date__: str = '2021-05-12'
+__last_update_date__: str = '2022-06-17'
 __min_python_version__: float = 3.6
 
 # Check python interpreter version

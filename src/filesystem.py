@@ -9,7 +9,8 @@ from src.platform import platf_depend_exit
 
 def is_fasta(fpath: str) -> bool:
     # Returns True if path passed to it seems to point to a fasta file, else False.
-    return not re.search(r'f(ast)?a(\.gz)?$', fpath) is None
+    fasta_pattern = r'\.f(asta|a|sa|na)(_nt)?(\.gz)?$'
+    return not re.search(fasta_pattern, fpath) is None
 # end def is_fasta
 
 
@@ -82,7 +83,7 @@ def _bname_no_fasta_ext(fpath: str) -> str:
 
     # Find the extention
     ext_match_obj: re.Match = re.search(
-        r'.+(\.f(ast)?a(\.gz)?)$',
+        r'.+(\.f(asta|a|sa|na)(_nt)?(\.gz)?)$',
         os.path.basename(fpath)
     )
 

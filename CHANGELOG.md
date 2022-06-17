@@ -1,5 +1,13 @@
 # combinator-FQ changelog
 
+## 2022-06-17 edition
+
+- Added `.fna`, `.fsa`, and `.fsa_nt` to possible fasta extentions.
+
+### Version change:
+
+`1.5.a -> 1.5.b`
+
 ## 2021-05-12 edition
 
 - combinator-FQ now can calculate expected genome length and multiplicity of contigs based on number of overlaps, if no coverage information is present in sequence headers.
