@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 import sys
 
-__version__: str  = '1.5.b'
+__version__: str  = '1.6.a'
 # Year, month, day
-__last_update_date__: str = '2022-06-17'
+__last_update_date__: str = '2023-06-16'
 __min_python_version__: float = 3.6
 
 # Check python interpreter version
@@ -24,6 +24,7 @@ if sys.version_info.major + sys.version_info.minor*0.1 < __min_python_version__:
     # end if
     sys.exit(1)
 # end if
+
 
 from src.main import main
 

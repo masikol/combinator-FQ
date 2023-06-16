@@ -1,5 +1,14 @@
 # combinator-FQ changelog
 
+## 2023-06-16 edition
+
+- Now, contig multiplicity is calculated simply as *cov_i* / *cov_1*.
+- Now, LQ-coefficient is calculated with no regard to multiplicity of contigs.
+
+### Version change:
+
+`1.5.b -> 1.6.a`
+
 ## 2022-06-17 edition
 
 - Added `.fna`, `.fsa`, and `.fsa_nt` to possible fasta extentions.

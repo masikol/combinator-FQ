@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 from typing import Collection, Sequence, Callable
 from statistics import mean, median
@@ -111,8 +111,8 @@ def calc_lq_coef(contig_collection: ContigCollection,
     # :param overlap_collection: instance of OverlapCollection returned by
     #   `src.overlaps.detect_adjacent_contigs` function;
 
-    # Total number of termini taking account of multiplicity
-    total_termini: int = 0
+    # Number of termini of a contig
+    num_contig_termini: int = 2
     # Total number of dead ends taking account of multiplicity
     total_dead_ends: int = 0
 
@@ -120,31 +120,24 @@ def calc_lq_coef(contig_collection: ContigCollection,
     contig: Contig
     # Iterate over contigs
     for i, contig in enumerate(contig_collection):
-
-        # Get rounded multiplicity
-        round_multplty: int = round(contig.multplty)
-        # Calculate number of termini taking account of multiplicity
-        num_termini: int = int(2 * round_multplty)
-
         # Count overlaps associated with start
-        num_start_matches: int = len(tuple(
+        start_is_not_dead: int = is_not_empty(tuple(
             filter(is_start_match, overlap_collection[i])
         ))
         # Count overlaps associated with end
-        num_end_matches:   int = len(tuple(
+        end_is_not_dead:   int = is_not_empty(tuple(
             filter(is_end_match, overlap_collection[i])
         ))
 
         # Calculate number of dead ends of the current contig
-        num_dead_ends: int = int(2 * round_multplty)\
-                             - min(round_multplty, num_start_matches)\
-                             - min(round_multplty, num_end_matches)
-
-        # Increment `total_termini` and `total_dead_ends`
-        total_termini += num_termini
+        num_dead_ends: int = num_contig_termini \
+                             - start_is_not_dead - end_is_not_dead
+        # Add to `total_dead_ends`
         total_dead_ends += num_dead_ends
     # end for
 
+    # Total number of termini taking account of multiplicity
+    total_termini: int = int(num_contig_termini * len(contig_collection))
     # Calculate the LQ coefficient
     lq_coef: float = (1 - total_dead_ends / total_termini) * 100.0
 
@@ -212,7 +205,6 @@ def calc_exp_genome_size(contig_collection: ContigCollection,
             for ovl in ovls_to_add:
                 total_overlap_len += ovl.ovl_len
             # end for
-
         # end for
     # end for
 
@@ -243,3 +235,8 @@ def is_end_match(ovl: Overlap) -> bool:
            or (ovl.terminus_i == END and ovl.terminus_j == RCEND)
            # or {ovl.terminus_i, ovl.terminus_j} == _END2END_MATCH
 # end def def is_end_match
+
+
+def is_not_empty(collection: Sequence) -> int:
+    return int(len(collection) != 0)
+# end def not_empty

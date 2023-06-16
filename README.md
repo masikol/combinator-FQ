@@ -1,15 +1,15 @@
 # combinator-FQ
-A tool for detecting adjacent contigs and calculating LQ-coefficient.
+Combinator-FQ is a tool for detecting adjacent contigs and calculating the LQ-coefficient. The LQ-coefficient reflects the degree of connection between contigs. The higher the LQ-coefficient, the higher is the degree of connection.
 
-Latest version: `1.5.b`.
+Latest version: `1.6.a`.
 
 ### Description
 
-Script identifies adjacent contigs in order to facilitate further scaffolding.
+Combinator-FQ identifies adjacent contigs in order to facilitate further scaffolding.
 
 Format of input: multi-fasta file containing contigs.
 
-Script supports contigs assembled by SPAdes and A5.
+Combinator-FQ supports contigs assembled by SPAdes and A5.
 
 It calculates LQ-coefficient, defined as follows:
 
@@ -31,11 +31,11 @@ If no coverage information is present in sequence headers, multiplicity is calcu
 
 ### Dependencies
 
-The script is written in Python, so you need Python interpreter (version 3.X) to use it. [Here you can download Python](https://www.python.org/downloads/).
+Combinator-FQ is written in Python, so you need Python interpreter (version 3.X) to use it. [Here you can download Python](https://www.python.org/downloads/).
 
 ### Explanation of output files
 
-Script generates 3 output files:
+Combinator-FQ generates 3 output files:
 
 #### 1) Table containing information about contigs adjacency:
 

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 from typing import MutableSequence
 
@@ -63,9 +63,7 @@ def _calc_multiplty_by_coverage(curr_coverage: float, first_contig_coverage: flo
     #   based on it's coverage (and also on coverage of the first contig).
     # :param curr_coverage: coverage of current contig;
     # :param curr_coverage: coverage of the first contig;
-
-    multiplicity: float = curr_coverage / first_contig_coverage
-    return max(multiplicity, 1.0)
+    return curr_coverage / first_contig_coverage
 # end def _calc_multiplty_by_coverage
 
 

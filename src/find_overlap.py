@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 def find_overlap_s2s(seq1: str, seq2: str, mink: int, maxk: int) -> int:
     # Function searches for identity between starts of seq1 and seq2.

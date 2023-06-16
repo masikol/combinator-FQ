@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 import pytest
 from math import floor
@@ -320,7 +320,7 @@ class TestCalcLqCoef:
         # Should return 60.00 for `mock_contigs_spades_0`
         contig_collection, overlap_collection = mock_contigs_spades_0
 
-        expected_lq_coef: float = 60.00
+        expected_lq_coef: float = 75.00
 
         assert abs(sts.calc_lq_coef(contig_collection, overlap_collection) - expected_lq_coef) < 1e-2
     # end def test_calc_lq_coef_spades_0

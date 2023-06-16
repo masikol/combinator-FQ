@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 import os
 import sys
@@ -173,7 +173,7 @@ def write_adjacency_table(contig_collection: ContigCollection,
             outfile.write('{:.2f}'.format(contig.gc_content) + '\t')
 
             # Multiplicity
-            outfile.write('{:.1f}\t'.format(contig.multplty))
+            outfile.write('{:.2f}\t'.format(contig.multplty))
 
             # Empty column for annotation
             outfile.write('\t')

@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 
 import os
 import pytest
@@ -230,7 +230,7 @@ class TestCalcMultpltyByCov:
         curr_cov: float = coverages_x0_dot_45_repeat[0]
         first_cov: float = coverages_x0_dot_45_repeat[1]
 
-        expected: float = 1.0
+        expected: float = 0.45
 
         obtained: float = amu._calc_multiplty_by_coverage(curr_cov, first_cov)
 
@@ -312,7 +312,7 @@ class TestAssignMultiplty:
 
         expected_multplts: Sequence[float] = tuple([
             1.0, # NODE_1
-            1.0, # NODE_2
+            0.8, # NODE_2
             1.8, # NODE_3
             1.2  # NODE_4
         ])
